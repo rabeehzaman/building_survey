@@ -41,6 +41,9 @@ export const buildingSurveySchema = z.object({
   latitude: z.number().nullable().optional(),
   longitude: z.number().nullable().optional(),
 
+  // Photos (optional)
+  photos: z.array(z.string()).optional(),
+
   // Step 3: Shop Details (conditional)
   shops: z.array(shopDetailSchema).optional(),
 })

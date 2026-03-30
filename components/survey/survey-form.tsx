@@ -24,6 +24,7 @@ import {
 import {
   createBuilding,
   updateBuilding,
+  uploadPhoto,
 } from "@/lib/storage/survey-storage"
 
 interface SurveyFormProps {
@@ -45,6 +46,7 @@ const defaultFormValues: BuildingSurvey = {
   hasShops: false,
   latitude: null,
   longitude: null,
+  photos: [],
   shops: [],
 }
 
@@ -52,6 +54,7 @@ export function SurveyForm({ defaultValues, editId }: SurveyFormProps) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [gpsStatus, setGpsStatus] = useState<GpsStatus>("capturing")
+  const [pendingPhotos, setPendingPhotos] = useState<File[]>([])
 
   const form = useForm<BuildingSurvey>({
     resolver: zodResolver(buildingSurveySchema),
@@ -178,6 +181,14 @@ export function SurveyForm({ defaultValues, editId }: SurveyFormProps) {
 
     setIsSubmitting(true)
     try {
+      // Upload pending photos first
+      if (pendingPhotos.length > 0) {
+        const uploadedUrls = await Promise.all(
+          pendingPhotos.map((file) => uploadPhoto(file))
+        )
+        values.photos = [...(values.photos || []), ...uploadedUrls]
+      }
+
       if (editId) {
         await updateBuilding(editId, values)
         toast.success("Building updated successfully")
@@ -209,7 +220,7 @@ export function SurveyForm({ defaultValues, editId }: SurveyFormProps) {
 
       {/* Step content */}
       <form onSubmit={(e) => e.preventDefault()}>
-        {currentStep === 0 && <StepBuildingInfo form={form} gpsStatus={gpsStatus} onRetryGps={captureGps} />}
+        {currentStep === 0 && <StepBuildingInfo form={form} gpsStatus={gpsStatus} onRetryGps={captureGps} pendingPhotos={pendingPhotos} setPendingPhotos={setPendingPhotos} />}
         {currentStep === 1 && <StepBuildingStatus form={form} />}
         {currentStep === 2 && hasShops && <StepShopDetails form={form} />}
       </form>

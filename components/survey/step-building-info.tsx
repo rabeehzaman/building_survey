@@ -1,11 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import type { UseFormReturn } from "react-hook-form"
-import { MapPinIcon, CheckCircleIcon, AlertCircleIcon, RotateCwIcon, PencilIcon, XIcon } from "lucide-react"
+import { MapPinIcon, CheckCircleIcon, AlertCircleIcon, RotateCwIcon, PencilIcon, XIcon, CameraIcon, ImageIcon } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
+import { deletePhoto } from "@/lib/storage/survey-storage"
 import type { GpsStatus } from "./survey-form"
 import {
   Select,
@@ -28,15 +29,21 @@ interface StepBuildingInfoProps {
   form: UseFormReturn<BuildingSurvey, any, any>
   gpsStatus: GpsStatus
   onRetryGps: () => void
+  pendingPhotos: File[]
+  setPendingPhotos: (photos: File[]) => void
 }
 
-export function StepBuildingInfo({ form, gpsStatus, onRetryGps }: StepBuildingInfoProps) {
+export function StepBuildingInfo({ form, gpsStatus, onRetryGps, pendingPhotos, setPendingPhotos }: StepBuildingInfoProps) {
   const {
     register,
     setValue,
     watch,
     formState: { errors },
   } = form
+
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const existingPhotos = watch("photos") || []
+  const totalPhotos = existingPhotos.length + pendingPhotos.length
 
   const latitude = watch("latitude")
   const longitude = watch("longitude")
@@ -186,6 +193,79 @@ export function StepBuildingInfo({ form, gpsStatus, onRetryGps }: StepBuildingIn
                 Done
               </Button>
             </div>
+          </div>
+        )}
+      </div>
+
+      {/* Photos (Optional) */}
+      <div className="flex flex-col gap-3 rounded-lg border p-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <ImageIcon className="text-muted-foreground" />
+            <span className="text-sm font-medium">Photos</span>
+            <span className="text-xs text-muted-foreground">(Optional, max 5)</span>
+          </div>
+          {totalPhotos < 5 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <CameraIcon data-icon="inline-start" />
+              Add
+            </Button>
+          )}
+        </div>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0]
+            if (file && totalPhotos < 5) {
+              setPendingPhotos([...pendingPhotos, file])
+            }
+            e.target.value = ""
+          }}
+        />
+
+        {totalPhotos > 0 && (
+          <div className="grid grid-cols-3 gap-2">
+            {/* Existing uploaded photos */}
+            {existingPhotos.map((url, i) => (
+              <div key={url} className="group relative aspect-square overflow-hidden rounded-md">
+                <img src={url} alt={`Photo ${i + 1}`} className="size-full object-cover" />
+                <button
+                  type="button"
+                  className="absolute top-1 right-1 rounded-full bg-black/60 p-1 opacity-0 transition-opacity group-hover:opacity-100"
+                  onClick={async () => {
+                    await deletePhoto(url)
+                    setValue("photos", existingPhotos.filter((_, j) => j !== i))
+                  }}
+                >
+                  <XIcon className="size-3 text-white" />
+                </button>
+              </div>
+            ))}
+            {/* Pending photos (not yet uploaded) */}
+            {pendingPhotos.map((file, i) => (
+              <div key={i} className="group relative aspect-square overflow-hidden rounded-md">
+                <img
+                  src={URL.createObjectURL(file)}
+                  alt={`New photo ${i + 1}`}
+                  className="size-full object-cover"
+                />
+                <button
+                  type="button"
+                  className="absolute top-1 right-1 rounded-full bg-black/60 p-1 opacity-0 transition-opacity group-hover:opacity-100"
+                  onClick={() => setPendingPhotos(pendingPhotos.filter((_, j) => j !== i))}
+                >
+                  <XIcon className="size-3 text-white" />
+                </button>
+              </div>
+            ))}
           </div>
         )}
       </div>

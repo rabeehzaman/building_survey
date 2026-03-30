@@ -1,3 +1,5 @@
+import imageCompression from "browser-image-compression"
+import { v4 as uuidv4 } from "uuid"
 import { createClient } from "@/lib/supabase/client"
 import type { BuildingSurvey, ShopDetail } from "@/lib/schemas/building-survey"
 import type { Database } from "@/lib/supabase/types"
@@ -35,6 +37,36 @@ export async function getBuildingById(
   return data as BuildingWithShops
 }
 
+export async function uploadPhoto(file: File): Promise<string> {
+  const supabase = createClient()
+  const compressed = await imageCompression(file, {
+    maxSizeMB: 0.5,
+    maxWidthOrHeight: 1200,
+    useWebWorker: true,
+  })
+  const ext = file.name.split(".").pop() || "jpg"
+  const path = `${uuidv4()}.${ext}`
+
+  const { error } = await supabase.storage
+    .from("building-photos")
+    .upload(path, compressed, { contentType: compressed.type })
+
+  if (error) throw error
+
+  const { data } = supabase.storage
+    .from("building-photos")
+    .getPublicUrl(path)
+
+  return data.publicUrl
+}
+
+export async function deletePhoto(url: string): Promise<void> {
+  const supabase = createClient()
+  const path = url.split("/building-photos/").pop()
+  if (!path) return
+  await supabase.storage.from("building-photos").remove([path])
+}
+
 export async function createBuilding(
   survey: BuildingSurvey
 ): Promise<string> {
@@ -55,6 +87,7 @@ export async function createBuilding(
       has_shops: survey.hasShops,
       latitude: survey.latitude ?? null,
       longitude: survey.longitude ?? null,
+      photos: survey.photos ?? [],
     })
     .select("id")
     .single()
@@ -107,6 +140,7 @@ export async function updateBuilding(
       has_shops: survey.hasShops,
       latitude: survey.latitude ?? null,
       longitude: survey.longitude ?? null,
+      photos: survey.photos ?? [],
     })
     .eq("id", id)
 
@@ -173,6 +207,7 @@ export function buildingToFormData(building: BuildingWithShops): BuildingSurvey 
     hasShops: building.has_shops,
     latitude: building.latitude,
     longitude: building.longitude,
+    photos: building.photos ?? [],
     shops: building.shops.map((shop) => ({
       shopDetails: shop.shop_details,
       shopLicenceNo: shop.shop_licence_no,

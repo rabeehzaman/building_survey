@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
-import { PencilIcon, ArrowLeftIcon, StoreIcon, FileTextIcon, MapPinIcon } from "lucide-react"
+import { PencilIcon, ArrowLeftIcon, StoreIcon, FileTextIcon, MapPinIcon, ImageIcon } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -157,6 +157,27 @@ export default function EntryDetailPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Photos */}
+      {building.photos && building.photos.length > 0 && (
+        <div className="flex flex-col gap-3">
+          <h2 className="flex items-center gap-2 text-lg font-semibold">
+            <ImageIcon className="text-muted-foreground" />
+            Photos ({building.photos.length})
+          </h2>
+          <div className="grid grid-cols-2 gap-2">
+            {building.photos.map((url, i) => (
+              <a key={i} href={url} target="_blank" rel="noopener noreferrer">
+                <img
+                  src={url}
+                  alt={`Building photo ${i + 1}`}
+                  className="aspect-square w-full rounded-lg object-cover transition-opacity hover:opacity-80"
+                />
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Shop Details */}
       {building.shops.length > 0 && (

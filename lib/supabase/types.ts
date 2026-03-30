@@ -15,6 +15,7 @@ export type Database = {
           has_shops: boolean
           latitude: number | null
           longitude: number | null
+          photos: string[] | null
           created_at: string
           updated_at: string
         }
@@ -31,6 +32,7 @@ export type Database = {
           has_shops?: boolean
           latitude?: number | null
           longitude?: number | null
+          photos?: string[] | null
           created_at?: string
           updated_at?: string
         }
@@ -47,6 +49,7 @@ export type Database = {
           has_shops?: boolean
           latitude?: number | null
           longitude?: number | null
+          photos?: string[] | null
           updated_at?: string
         }
         Relationships: [
