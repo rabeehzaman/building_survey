@@ -20,7 +20,7 @@ export const shopDetailSchema = z.object({
   connectedRoom: z.string().optional(),
   wardNumber: z.string().min(1, "Ward number is required"),
   roomNumber: z.string().min(1, "Room number is required"),
-  locationName: z.string().min(1, "Location name is required"),
+  locationName: z.string().optional(),
 })
 
 export const buildingSurveySchema = z.object({
