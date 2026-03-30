@@ -239,7 +239,7 @@ export function StepBuildingInfo({ form, gpsStatus, onRetryGps, pendingPhotos, s
                 <img src={url} alt={`Photo ${i + 1}`} className="size-full object-cover" />
                 <button
                   type="button"
-                  className="absolute top-1 right-1 rounded-full bg-black/60 p-1 opacity-0 transition-opacity group-hover:opacity-100"
+                  className="absolute top-1 right-1 rounded-full bg-black/60 p-1"
                   onClick={async () => {
                     await deletePhoto(url)
                     setValue("photos", existingPhotos.filter((_, j) => j !== i))
@@ -259,7 +259,7 @@ export function StepBuildingInfo({ form, gpsStatus, onRetryGps, pendingPhotos, s
                 />
                 <button
                   type="button"
-                  className="absolute top-1 right-1 rounded-full bg-black/60 p-1 opacity-0 transition-opacity group-hover:opacity-100"
+                  className="absolute top-1 right-1 rounded-full bg-black/60 p-1"
                   onClick={() => setPendingPhotos(pendingPhotos.filter((_, j) => j !== i))}
                 >
                   <XIcon className="size-3 text-white" />
