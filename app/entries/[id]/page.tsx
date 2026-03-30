@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
-import { PencilIcon, ArrowLeftIcon, StoreIcon, FileTextIcon } from "lucide-react"
+import { PencilIcon, ArrowLeftIcon, StoreIcon, FileTextIcon, MapPinIcon } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -135,6 +135,26 @@ export default function EntryDetailPage() {
               />
             )}
           </div>
+          {building.latitude && building.longitude && (
+            <div className="mt-4 flex items-center gap-2 rounded-lg border p-3">
+              <MapPinIcon className="shrink-0 text-muted-foreground" />
+              <div className="flex flex-1 flex-col gap-0.5">
+                <span className="text-xs text-muted-foreground">GPS Location</span>
+                <span className="text-sm font-medium">
+                  {Number(building.latitude).toFixed(6)}, {Number(building.longitude).toFixed(6)}
+                </span>
+              </div>
+              <a
+                href={`https://www.google.com/maps?q=${building.latitude},${building.longitude}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Button variant="outline" size="sm">
+                  View on Map
+                </Button>
+              </a>
+            </div>
+          )}
         </CardContent>
       </Card>
 

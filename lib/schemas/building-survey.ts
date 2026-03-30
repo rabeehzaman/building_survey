@@ -37,6 +37,10 @@ export const buildingSurveySchema = z.object({
   vacancyPeriod: z.string().optional(),
   hasShops: z.boolean(),
 
+  // GPS coordinates (auto-captured)
+  latitude: z.number().nullable().optional(),
+  longitude: z.number().nullable().optional(),
+
   // Step 3: Shop Details (conditional)
   shops: z.array(shopDetailSchema).optional(),
 })

@@ -53,6 +53,8 @@ export async function createBuilding(
       vacancy_period:
         survey.buildingStatus === "vacant" ? survey.vacancyPeriod || null : null,
       has_shops: survey.hasShops,
+      latitude: survey.latitude ?? null,
+      longitude: survey.longitude ?? null,
     })
     .select("id")
     .single()
@@ -103,6 +105,8 @@ export async function updateBuilding(
       vacancy_period:
         survey.buildingStatus === "vacant" ? survey.vacancyPeriod || null : null,
       has_shops: survey.hasShops,
+      latitude: survey.latitude ?? null,
+      longitude: survey.longitude ?? null,
     })
     .eq("id", id)
 
@@ -167,6 +171,8 @@ export function buildingToFormData(building: BuildingWithShops): BuildingSurvey 
     buildingStatus: building.building_status,
     vacancyPeriod: building.vacancy_period || "",
     hasShops: building.has_shops,
+    latitude: building.latitude,
+    longitude: building.longitude,
     shops: building.shops.map((shop) => ({
       shopDetails: shop.shop_details,
       shopLicenceNo: shop.shop_licence_no,

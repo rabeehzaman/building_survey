@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useRouter } from "next/navigation"
@@ -31,6 +31,8 @@ interface SurveyFormProps {
   editId?: string
 }
 
+export type GpsStatus = "capturing" | "captured" | "failed" | "unsupported"
+
 const defaultFormValues: BuildingSurvey = {
   wardNo: "",
   location: "",
@@ -41,18 +43,44 @@ const defaultFormValues: BuildingSurvey = {
   buildingStatus: "working",
   vacancyPeriod: "",
   hasShops: false,
+  latitude: null,
+  longitude: null,
   shops: [],
 }
 
 export function SurveyForm({ defaultValues, editId }: SurveyFormProps) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [gpsStatus, setGpsStatus] = useState<GpsStatus>("capturing")
 
   const form = useForm<BuildingSurvey>({
     resolver: zodResolver(buildingSurveySchema),
     defaultValues: defaultValues || defaultFormValues,
     mode: "onTouched",
   })
+
+  const captureGps = useCallback(() => {
+    if (!navigator.geolocation) {
+      setGpsStatus("unsupported")
+      return
+    }
+    setGpsStatus("capturing")
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        form.setValue("latitude", pos.coords.latitude)
+        form.setValue("longitude", pos.coords.longitude)
+        setGpsStatus("captured")
+      },
+      () => setGpsStatus("failed"),
+      { enableHighAccuracy: true, timeout: 15000 }
+    )
+  }, [form])
+
+  useEffect(() => {
+    if (!editId) captureGps()
+    else if (defaultValues?.latitude) setGpsStatus("captured")
+    else setGpsStatus("unsupported")
+  }, [editId, defaultValues, captureGps])
 
   const hasShops = form.watch("hasShops")
   const totalSteps = hasShops ? 3 : 2
@@ -181,7 +209,7 @@ export function SurveyForm({ defaultValues, editId }: SurveyFormProps) {
 
       {/* Step content */}
       <form onSubmit={(e) => e.preventDefault()}>
-        {currentStep === 0 && <StepBuildingInfo form={form} />}
+        {currentStep === 0 && <StepBuildingInfo form={form} gpsStatus={gpsStatus} onRetryGps={captureGps} />}
         {currentStep === 1 && <StepBuildingStatus form={form} />}
         {currentStep === 2 && hasShops && <StepShopDetails form={form} />}
       </form>

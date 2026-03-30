@@ -13,6 +13,8 @@ export type Database = {
           building_status: "vacant" | "working"
           vacancy_period: string | null
           has_shops: boolean
+          latitude: number | null
+          longitude: number | null
           created_at: string
           updated_at: string
         }
@@ -27,6 +29,8 @@ export type Database = {
           building_status: "vacant" | "working"
           vacancy_period?: string | null
           has_shops?: boolean
+          latitude?: number | null
+          longitude?: number | null
           created_at?: string
           updated_at?: string
         }
@@ -41,6 +45,8 @@ export type Database = {
           building_status?: "vacant" | "working"
           vacancy_period?: string | null
           has_shops?: boolean
+          latitude?: number | null
+          longitude?: number | null
           updated_at?: string
         }
         Relationships: [

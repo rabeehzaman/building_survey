@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1e3a5f"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="bld1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#60a5fa"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+    <linearGradient id="bld2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#93c5fd"/>
+      <stop offset="100%" stop-color="#60a5fa"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+
+  <!-- Left building -->
+  <rect x="112" y="192" width="128" height="216" rx="8" fill="url(#bld1)"/>
+
+  <!-- Left building windows -->
+  <rect x="132" y="216" width="24" height="20" rx="4" fill="#0f172a" opacity="0.5"/>
+  <rect x="168" y="216" width="24" height="20" rx="4" fill="#0f172a" opacity="0.5"/>
+  <rect x="196" y="216" width="24" height="20" rx="4" fill="#0f172a" opacity="0.5"/>
+  <rect x="132" y="252" width="24" height="20" rx="4" fill="#0f172a" opacity="0.5"/>
+  <rect x="168" y="252" width="24" height="20" rx="4" fill="#0f172a" opacity="0.5"/>
+  <rect x="196" y="252" width="24" height="20" rx="4" fill="#0f172a" opacity="0.5"/>
+  <rect x="132" y="288" width="24" height="20" rx="4" fill="#0f172a" opacity="0.5"/>
+  <rect x="168" y="288" width="24" height="20" rx="4" fill="#0f172a" opacity="0.5"/>
+  <rect x="196" y="288" width="24" height="20" rx="4" fill="#0f172a" opacity="0.5"/>
+  <rect x="132" y="324" width="24" height="20" rx="4" fill="#0f172a" opacity="0.5"/>
+  <rect x="168" y="324" width="24" height="20" rx="4" fill="#0f172a" opacity="0.5"/>
+  <rect x="196" y="324" width="24" height="20" rx="4" fill="#0f172a" opacity="0.5"/>
+
+  <!-- Left building door -->
+  <rect x="152" y="364" width="48" height="44" rx="6" fill="#0f172a" opacity="0.6"/>
+
+  <!-- Right building (taller) -->
+  <rect x="260" y="128" width="140" height="280" rx="8" fill="url(#bld2)"/>
+
+  <!-- Right building windows -->
+  <rect x="280" y="156" width="28" height="22" rx="4" fill="#0f172a" opacity="0.45"/>
+  <rect x="320" y="156" width="28" height="22" rx="4" fill="#0f172a" opacity="0.45"/>
+  <rect x="352" y="156" width="28" height="22" rx="4" fill="#0f172a" opacity="0.45"/>
+  <rect x="280" y="196" width="28" height="22" rx="4" fill="#0f172a" opacity="0.45"/>
+  <rect x="320" y="196" width="28" height="22" rx="4" fill="#0f172a" opacity="0.45"/>
+  <rect x="352" y="196" width="28" height="22" rx="4" fill="#0f172a" opacity="0.45"/>
+  <rect x="280" y="236" width="28" height="22" rx="4" fill="#0f172a" opacity="0.45"/>
+  <rect x="320" y="236" width="28" height="22" rx="4" fill="#0f172a" opacity="0.45"/>
+  <rect x="352" y="236" width="28" height="22" rx="4" fill="#0f172a" opacity="0.45"/>
+  <rect x="280" y="276" width="28" height="22" rx="4" fill="#0f172a" opacity="0.45"/>
+  <rect x="320" y="276" width="28" height="22" rx="4" fill="#0f172a" opacity="0.45"/>
+  <rect x="352" y="276" width="28" height="22" rx="4" fill="#0f172a" opacity="0.45"/>
+  <rect x="280" y="316" width="28" height="22" rx="4" fill="#0f172a" opacity="0.45"/>
+  <rect x="320" y="316" width="28" height="22" rx="4" fill="#0f172a" opacity="0.45"/>
+  <rect x="352" y="316" width="28" height="22" rx="4" fill="#0f172a" opacity="0.45"/>
+
+  <!-- Right building door -->
+  <rect x="306" y="364" width="48" height="44" rx="6" fill="#0f172a" opacity="0.55"/>
+
+  <!-- Ground bar -->
+  <rect x="88" y="408" width="336" height="8" rx="4" fill="#93c5fd" opacity="0.4"/>
+
+  <!-- Green checkmark badge -->
+  <circle cx="396" cy="128" r="52" fill="#22c55e"/>
+  <circle cx="396" cy="128" r="48" fill="#16a34a"/>
+  <path d="M370 128 L388 146 L422 110" stroke="white" stroke-width="10" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
