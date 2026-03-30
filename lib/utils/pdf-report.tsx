@@ -197,6 +197,9 @@ function BuildingPage({ building }: { building: BuildingWithShops }) {
     ...(building.building_status === "vacant"
       ? [{ label: "Vacancy Period", value: building.vacancy_period || "" }]
       : []),
+    ...(building.latitude && building.longitude
+      ? [{ label: "GPS Coordinates", value: `${Number(building.latitude).toFixed(6)}, ${Number(building.longitude).toFixed(6)}` }]
+      : []),
   ].filter((r) => r.value)
 
   return (

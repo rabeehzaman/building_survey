@@ -17,6 +17,8 @@ function flattenForExport(buildings: BuildingWithShops[]) {
           "Mob No 2": b.mob_no_2 || "",
           "Building Status": b.building_status,
           "Vacancy period": b.vacancy_period || "",
+          Latitude: b.latitude ?? "",
+          Longitude: b.longitude ?? "",
           "Shop Details": shop.shop_details,
           "Shop Licence No": shop.shop_licence_no,
           "Shop Licensee Name": shop.shop_licensee_name,
