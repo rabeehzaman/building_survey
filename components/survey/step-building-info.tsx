@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import type { UseFormReturn } from "react-hook-form"
-import { MapPinIcon, CheckCircleIcon, AlertCircleIcon, RotateCwIcon, PencilIcon } from "lucide-react"
+import { MapPinIcon, CheckCircleIcon, AlertCircleIcon, RotateCwIcon, PencilIcon, XIcon } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
@@ -41,6 +41,10 @@ export function StepBuildingInfo({ form, gpsStatus, onRetryGps }: StepBuildingIn
   const latitude = watch("latitude")
   const longitude = watch("longitude")
   const [editingLocation, setEditingLocation] = useState(false)
+  const [gpsCleared, setGpsCleared] = useState(false)
+
+  const hasCoords = latitude != null && longitude != null
+  const showCaptured = gpsStatus === "captured" && hasCoords && !gpsCleared
 
   return (
     <div className="flex flex-col gap-6">
@@ -61,7 +65,7 @@ export function StepBuildingInfo({ form, gpsStatus, onRetryGps }: StepBuildingIn
               <span className="text-sm text-muted-foreground">Getting location...</span>
             </div>
           )}
-          {gpsStatus === "captured" && !editingLocation && (
+          {showCaptured && !editingLocation && (
             <>
               <div className="flex flex-1 flex-col gap-0.5">
                 <div className="flex items-center gap-1">
@@ -78,6 +82,18 @@ export function StepBuildingInfo({ form, gpsStatus, onRetryGps }: StepBuildingIn
                 </Button>
                 <Button variant="ghost" size="icon" onClick={onRetryGps} title="Recapture GPS">
                   <RotateCwIcon />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  title="Remove location"
+                  onClick={() => {
+                    setValue("latitude", null)
+                    setValue("longitude", null)
+                    setGpsCleared(true)
+                  }}
+                >
+                  <XIcon className="text-destructive" />
                 </Button>
               </div>
             </>
@@ -109,6 +125,21 @@ export function StepBuildingInfo({ form, gpsStatus, onRetryGps }: StepBuildingIn
               </Button>
             </div>
           )}
+          {gpsCleared && !editingLocation && (
+            <div className="flex flex-1 items-center justify-between">
+              <span className="text-sm text-muted-foreground">No location set</span>
+              <div className="flex gap-1">
+                <Button variant="ghost" size="sm" onClick={() => { setGpsCleared(false); onRetryGps() }}>
+                  <RotateCwIcon data-icon="inline-start" />
+                  Capture
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => setEditingLocation(true)}>
+                  <PencilIcon data-icon="inline-start" />
+                  Enter
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Manual edit fields */}
@@ -131,14 +162,30 @@ export function StepBuildingInfo({ form, gpsStatus, onRetryGps }: StepBuildingIn
                 onChange={(e) => setValue("longitude", e.target.value ? Number(e.target.value) : null)}
               />
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              className="self-end"
-              onClick={() => setEditingLocation(false)}
-            >
-              Done
-            </Button>
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setValue("latitude", null)
+                  setValue("longitude", null)
+                  setEditingLocation(false)
+                  setGpsCleared(true)
+                }}
+              >
+                Clear
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setEditingLocation(false)
+                  if (latitude != null && longitude != null) setGpsCleared(false)
+                }}
+              >
+                Done
+              </Button>
+            </div>
           </div>
         )}
       </div>

@@ -16,9 +16,28 @@ function ThemeProvider({
       {...props}
     >
       <ThemeHotkey />
+      <ThemeColorMeta />
       {children}
     </NextThemesProvider>
   )
+}
+
+const THEME_COLORS = { light: "#ffffff", dark: "#0a0a0a" } as const
+
+function ThemeColorMeta() {
+  const { resolvedTheme } = useTheme()
+
+  React.useEffect(() => {
+    const color = THEME_COLORS[resolvedTheme as keyof typeof THEME_COLORS] ?? THEME_COLORS.light
+    document
+      .querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]')
+      .forEach((meta) => {
+        meta.setAttribute("content", color)
+        meta.removeAttribute("media")
+      })
+  }, [resolvedTheme])
+
+  return null
 }
 
 function isTypingTarget(target: EventTarget | null) {
