@@ -1,10 +1,10 @@
 "use client"
 
+import { useState } from "react"
 import type { UseFormReturn } from "react-hook-form"
-import { MapPinIcon, CheckCircleIcon, AlertCircleIcon, RotateCwIcon } from "lucide-react"
+import { MapPinIcon, CheckCircleIcon, AlertCircleIcon, RotateCwIcon, PencilIcon } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { Spinner } from "@/components/ui/spinner"
 import type { GpsStatus } from "./survey-form"
 import {
@@ -40,6 +40,7 @@ export function StepBuildingInfo({ form, gpsStatus, onRetryGps }: StepBuildingIn
 
   const latitude = watch("latitude")
   const longitude = watch("longitude")
+  const [editingLocation, setEditingLocation] = useState(false)
 
   return (
     <div className="flex flex-col gap-6">
@@ -51,39 +52,94 @@ export function StepBuildingInfo({ form, gpsStatus, onRetryGps }: StepBuildingIn
       </div>
 
       {/* GPS Status */}
-      <div className="flex items-center gap-2 rounded-lg border p-3">
-        <MapPinIcon className="shrink-0 text-muted-foreground" />
-        {gpsStatus === "capturing" && (
-          <div className="flex flex-1 items-center gap-2">
-            <Spinner />
-            <span className="text-sm text-muted-foreground">Getting location...</span>
-          </div>
-        )}
-        {gpsStatus === "captured" && (
-          <div className="flex flex-1 flex-col gap-0.5">
-            <div className="flex items-center gap-1">
-              <CheckCircleIcon className="text-green-600 dark:text-green-400" />
-              <span className="text-sm font-medium">Location captured</span>
+      <div className="flex flex-col gap-2 rounded-lg border p-3">
+        <div className="flex items-center gap-2">
+          <MapPinIcon className="shrink-0 text-muted-foreground" />
+          {gpsStatus === "capturing" && (
+            <div className="flex flex-1 items-center gap-2">
+              <Spinner />
+              <span className="text-sm text-muted-foreground">Getting location...</span>
             </div>
-            <span className="text-xs text-muted-foreground">
-              {latitude?.toFixed(6)}, {longitude?.toFixed(6)}
-            </span>
-          </div>
-        )}
-        {gpsStatus === "failed" && (
-          <div className="flex flex-1 items-center justify-between">
-            <div className="flex items-center gap-1">
-              <AlertCircleIcon className="text-orange-500" />
-              <span className="text-sm text-muted-foreground">Location unavailable</span>
+          )}
+          {gpsStatus === "captured" && !editingLocation && (
+            <>
+              <div className="flex flex-1 flex-col gap-0.5">
+                <div className="flex items-center gap-1">
+                  <CheckCircleIcon className="text-green-600 dark:text-green-400" />
+                  <span className="text-sm font-medium">Location captured</span>
+                </div>
+                <span className="text-xs text-muted-foreground">
+                  {latitude?.toFixed(6)}, {longitude?.toFixed(6)}
+                </span>
+              </div>
+              <div className="flex gap-1">
+                <Button variant="ghost" size="icon" onClick={() => setEditingLocation(true)} title="Edit location">
+                  <PencilIcon />
+                </Button>
+                <Button variant="ghost" size="icon" onClick={onRetryGps} title="Recapture GPS">
+                  <RotateCwIcon />
+                </Button>
+              </div>
+            </>
+          )}
+          {gpsStatus === "failed" && !editingLocation && (
+            <div className="flex flex-1 items-center justify-between">
+              <div className="flex items-center gap-1">
+                <AlertCircleIcon className="text-orange-500" />
+                <span className="text-sm text-muted-foreground">Location unavailable</span>
+              </div>
+              <div className="flex gap-1">
+                <Button variant="ghost" size="sm" onClick={() => setEditingLocation(true)}>
+                  <PencilIcon data-icon="inline-start" />
+                  Enter
+                </Button>
+                <Button variant="ghost" size="sm" onClick={onRetryGps}>
+                  <RotateCwIcon data-icon="inline-start" />
+                  Retry
+                </Button>
+              </div>
             </div>
-            <Button variant="ghost" size="sm" onClick={onRetryGps}>
-              <RotateCwIcon data-icon="inline-start" />
-              Retry
+          )}
+          {gpsStatus === "unsupported" && !editingLocation && (
+            <div className="flex flex-1 items-center justify-between">
+              <span className="text-sm text-muted-foreground">GPS not available</span>
+              <Button variant="ghost" size="sm" onClick={() => setEditingLocation(true)}>
+                <PencilIcon data-icon="inline-start" />
+                Enter manually
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {/* Manual edit fields */}
+        {editingLocation && (
+          <div className="flex flex-col gap-2 border-t pt-2">
+            <span className="text-xs font-medium text-muted-foreground">Edit coordinates</span>
+            <div className="grid grid-cols-2 gap-2">
+              <Input
+                type="number"
+                step="any"
+                placeholder="Latitude"
+                value={latitude ?? ""}
+                onChange={(e) => setValue("latitude", e.target.value ? Number(e.target.value) : null)}
+              />
+              <Input
+                type="number"
+                step="any"
+                placeholder="Longitude"
+                value={longitude ?? ""}
+                onChange={(e) => setValue("longitude", e.target.value ? Number(e.target.value) : null)}
+              />
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="self-end"
+              onClick={() => setEditingLocation(false)}
+            >
+              Done
             </Button>
           </div>
-        )}
-        {gpsStatus === "unsupported" && (
-          <span className="text-sm text-muted-foreground">GPS not available</span>
         )}
       </div>
 
