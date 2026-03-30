@@ -67,6 +67,27 @@ export async function deletePhoto(url: string): Promise<void> {
   await supabase.storage.from("building-photos").remove([path])
 }
 
+export async function checkDuplicate(
+  wardNo: number,
+  buildingNumber: string,
+  excludeId?: string
+): Promise<{ isDuplicate: boolean; ownerName?: string }> {
+  const supabase = createClient()
+  let query = supabase
+    .from("buildings")
+    .select("id, building_owner_name")
+    .eq("ward_no", wardNo)
+    .eq("building_number", buildingNumber)
+
+  if (excludeId) query = query.neq("id", excludeId)
+
+  const { data } = await query.limit(1)
+  if (data && data.length > 0) {
+    return { isDuplicate: true, ownerName: data[0].building_owner_name }
+  }
+  return { isDuplicate: false }
+}
+
 export async function createBuilding(
   survey: BuildingSurvey
 ): Promise<string> {

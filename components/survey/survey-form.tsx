@@ -25,6 +25,7 @@ import {
   createBuilding,
   updateBuilding,
   uploadPhoto,
+  checkDuplicate,
 } from "@/lib/storage/survey-storage"
 
 interface SurveyFormProps {
@@ -177,6 +178,23 @@ export function SurveyForm({ defaultValues, editId }: SurveyFormProps) {
     if (!fullResult.success) {
       toast.error("Please check all fields and try again")
       return
+    }
+
+    // Duplicate detection (warning only)
+    try {
+      const { isDuplicate, ownerName } = await checkDuplicate(
+        Number(values.wardNo),
+        values.buildingNumber,
+        editId
+      )
+      if (isDuplicate) {
+        const proceed = window.confirm(
+          `Warning: Building #${values.buildingNumber} already exists in Ward ${values.wardNo} (Owner: ${ownerName}). Do you still want to save?`
+        )
+        if (!proceed) return
+      }
+    } catch {
+      // Skip check on error, proceed with save
     }
 
     setIsSubmitting(true)

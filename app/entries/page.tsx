@@ -12,11 +12,20 @@ import {
   FileTextIcon,
   FileIcon,
   Building2Icon,
+  FilterIcon,
 } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import {
   Card,
   CardContent,
@@ -63,6 +72,7 @@ function EntriesContent() {
   const [buildings, setBuildings] = useState<BuildingWithShops[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
+  const [wardFilter, setWardFilter] = useState<string>("all")
   const [showExport, setShowExport] = useState(
     searchParams.get("export") === "true"
   )
@@ -92,7 +102,12 @@ function EntriesContent() {
     }
   }
 
+  const wardNumbers = [...new Set(buildings.map((b) => b.ward_no))].sort(
+    (a, b) => a - b
+  )
+
   const filtered = buildings.filter((b) => {
+    if (wardFilter !== "all" && String(b.ward_no) !== wardFilter) return false
     if (!search) return true
     const q = search.toLowerCase()
     return (
@@ -167,6 +182,26 @@ function EntriesContent() {
           className="pl-10"
         />
       </InputGroup>
+
+      {/* Ward Filter */}
+      {wardNumbers.length > 1 && (
+        <Select value={wardFilter} onValueChange={setWardFilter}>
+          <SelectTrigger>
+            <FilterIcon className="mr-2 text-muted-foreground" />
+            <SelectValue placeholder="Filter by ward" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectItem value="all">All Wards</SelectItem>
+              {wardNumbers.map((ward) => (
+                <SelectItem key={ward} value={String(ward)}>
+                  Ward {ward}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      )}
 
       {/* List */}
       {loading ? (
