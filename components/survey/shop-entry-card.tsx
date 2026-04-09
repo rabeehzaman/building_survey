@@ -50,6 +50,7 @@ export function ShopEntryCard({
 
   const shopErrors = errors.shops?.[index]
   const prefix = `shops.${index}` as const
+  const connectedRoom = watch(`shops.${index}.connectedRoom`)
 
   return (
     <Card>
@@ -254,7 +255,12 @@ export function ShopEntryCard({
 
           <Field data-invalid={shopErrors?.locationName ? true : undefined}>
             <FieldLabel htmlFor={`${prefix}.locationName`}>
-              Location Name (Municipality/Panchayath)
+              Location Name (Municipality/Panchayath){" "}
+              {!connectedRoom && (
+                <span className="text-muted-foreground font-normal">
+                  (Optional)
+                </span>
+              )}
             </FieldLabel>
             <Input
               id={`${prefix}.locationName`}

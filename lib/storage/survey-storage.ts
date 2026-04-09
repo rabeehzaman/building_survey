@@ -127,7 +127,7 @@ export async function createBuilding(
       connected_room: shop.connectedRoom || null,
       ward_number: Number(shop.wardNumber),
       room_number: shop.roomNumber,
-      location_name: shop.locationName,
+      location_name: shop.locationName || "",
     }))
 
     const { error: shopsError } = await supabase
@@ -187,7 +187,7 @@ export async function updateBuilding(
       connected_room: shop.connectedRoom || null,
       ward_number: Number(shop.wardNumber),
       room_number: shop.roomNumber,
-      location_name: shop.locationName,
+      location_name: shop.locationName || "",
     }))
 
     const { error: shopsError } = await supabase

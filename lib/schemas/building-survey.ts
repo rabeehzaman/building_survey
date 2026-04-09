@@ -10,18 +10,29 @@ const optionalPhoneSchema = z
   .or(z.literal(""))
   .optional()
 
-export const shopDetailSchema = z.object({
-  shopDetails: z.string().min(1, "Shop details are required"),
-  shopLicenceNo: z.string().min(1, "Licence number is required"),
-  shopLicenseeName: z.string().min(1, "Licensee name is required"),
-  licenseeContactNo: phoneSchema,
-  shopManagingPerson: z.string().min(1, "Managing person is required"),
-  managingPersonContactNo: phoneSchema,
-  connectedRoom: z.string().optional(),
-  wardNumber: z.string().min(1, "Ward number is required"),
-  roomNumber: z.string().min(1, "Room number is required"),
-  locationName: z.string().optional(),
-})
+export const shopDetailSchema = z
+  .object({
+    shopDetails: z.string().min(1, "Shop details are required"),
+    shopLicenceNo: z.string().min(1, "Licence number is required"),
+    shopLicenseeName: z.string().min(1, "Licensee name is required"),
+    licenseeContactNo: phoneSchema,
+    shopManagingPerson: z.string().min(1, "Managing person is required"),
+    managingPersonContactNo: phoneSchema,
+    connectedRoom: z.string().optional(),
+    wardNumber: z.string().min(1, "Ward number is required"),
+    roomNumber: z.string().min(1, "Room number is required"),
+    locationName: z.string().optional(),
+  })
+  .refine(
+    (data) =>
+      !data.connectedRoom ||
+      data.connectedRoom.length === 0 ||
+      (data.locationName && data.locationName.length > 0),
+    {
+      message: "Municipality/Panchayath is required when Connected Room is provided",
+      path: ["locationName"],
+    }
+  )
 
 export const buildingSurveySchema = z.object({
   // Step 1: Building Information
