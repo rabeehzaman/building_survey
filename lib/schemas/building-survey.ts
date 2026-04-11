@@ -10,6 +10,11 @@ const optionalPhoneSchema = z
   .or(z.literal(""))
   .optional()
 
+export const floorDetailSchema = z.object({
+  floorNumber: z.number().min(1),
+  roofType: z.enum(["terrace", "sheet"]),
+})
+
 export const roomDetailSchema = z.object({
   roomNumber: z.string().min(1, "Room number is required"),
   status: z.enum(["vacant", "occupied"]),
@@ -38,6 +43,8 @@ export const shopDetailSchema = z
     connectedRoom: z.string().optional(),
     roomNumber: z.string().min(1, "Room number is required"),
     wasteManagement: wasteManagementSchema,
+    harithaKarmaSena: z.boolean().optional(),
+    harithaKarmaSenaNumber: z.string().optional(),
   })
   .superRefine((data, ctx) => {
     if (data.hasLicense) {
@@ -99,8 +106,7 @@ export const buildingSurveySchema = z
 
     // Floor details
     numberOfFloors: z.coerce.number().min(0, "Must be 0 or more"),
-    terraceFloors: z.coerce.number().min(0, "Must be 0 or more"),
-    sheetFloors: z.coerce.number().min(0, "Must be 0 or more"),
+    floors: z.array(floorDetailSchema),
 
     // Floor base
     staircaseCount: z.coerce.number().min(0, "Must be 0 or more"),
@@ -128,43 +134,21 @@ export const buildingSurveySchema = z
     // Shop Details (linked to rooms via roomNumber)
     shops: z.array(shopDetailSchema).optional(),
   })
-  .refine(
-    (data) =>
-      data.numberOfFloors === 0 ||
-      data.terraceFloors + data.sheetFloors === data.numberOfFloors,
-    {
-      message: "Terrace floors + Sheet floors must equal total number of floors",
-      path: ["sheetFloors"],
-    }
-  )
 
 // Per-step schemas for validation
-export const step1Schema = z
-  .object({
-    oldWardNo: z.string().min(1, "Old ward number is required"),
-    newWardNo: z.string().min(1, "New ward number is required"),
-    place: z.string().min(1, "Place is required"),
-    roadName: z.string().min(1, "Road name is required"),
-    buildingNumber: z.string().min(1, "Building number is required"),
-    buildingOwnerName: z.string().min(1, "Owner name is required"),
-    ownerMobNo1: phoneSchema,
-    ownerMobNo2: optionalPhoneSchema,
-    managerName: z.string().min(1, "Manager name is required"),
-    managerContactNo: phoneSchema,
-    numberOfFloors: z.coerce.number().min(0, "Must be 0 or more"),
-    terraceFloors: z.coerce.number().min(0, "Must be 0 or more"),
-    sheetFloors: z.coerce.number().min(0, "Must be 0 or more"),
-  })
-  .refine(
-    (data) =>
-      data.numberOfFloors === 0 ||
-      data.terraceFloors + data.sheetFloors === data.numberOfFloors,
-    {
-      message:
-        "Terrace floors + Sheet floors must equal total number of floors",
-      path: ["sheetFloors"],
-    }
-  )
+export const step1Schema = z.object({
+  oldWardNo: z.string().min(1, "Old ward number is required"),
+  newWardNo: z.string().min(1, "New ward number is required"),
+  place: z.string().min(1, "Place is required"),
+  roadName: z.string().min(1, "Road name is required"),
+  buildingNumber: z.string().min(1, "Building number is required"),
+  buildingOwnerName: z.string().min(1, "Owner name is required"),
+  ownerMobNo1: phoneSchema,
+  ownerMobNo2: optionalPhoneSchema,
+  managerName: z.string().min(1, "Manager name is required"),
+  managerContactNo: phoneSchema,
+  numberOfFloors: z.coerce.number().min(0, "Must be 0 or more"),
+})
 
 export const step2Schema = z
   .object({
@@ -183,6 +167,7 @@ export const step2Schema = z
     }
   )
 
+export type FloorDetail = z.infer<typeof floorDetailSchema>
 export type RoomDetail = z.infer<typeof roomDetailSchema>
 export type WasteManagement = z.infer<typeof wasteManagementSchema>
 export type ShopDetail = z.infer<typeof shopDetailSchema>

@@ -49,6 +49,8 @@ const emptyShopDetail = (roomNumber: string): ShopDetail => ({
     plasticWaste: "",
     otherWaste: "",
   },
+  harithaKarmaSena: false,
+  harithaKarmaSenaNumber: "",
 })
 
 export function StepBuildingStatus({ form }: StepBuildingStatusProps) {
@@ -424,6 +426,35 @@ export function StepBuildingStatus({ form }: StepBuildingStatusProps) {
               />
             </Field>
           </div>
+
+          {/* Haritha Karma Sena */}
+          <Field>
+            <div className="flex items-center justify-between">
+              <FieldLabel htmlFor={`${prefix}.harithaKarmaSena`}>Haritha Karma Sena</FieldLabel>
+              <Switch
+                id={`${prefix}.harithaKarmaSena`}
+                checked={watch(`shops.${shopIdx}.harithaKarmaSena`) || false}
+                onCheckedChange={(checked) =>
+                  setValue(`shops.${shopIdx}.harithaKarmaSena`, checked)
+                }
+              />
+            </div>
+          </Field>
+
+          {watch(`shops.${shopIdx}.harithaKarmaSena`) && (
+            <Field>
+              <FieldLabel htmlFor={`${prefix}.harithaKarmaSenaNumber`}>
+                Haritha Karma Sena Number
+              </FieldLabel>
+              <Input
+                id={`${prefix}.harithaKarmaSenaNumber`}
+                type="tel"
+                inputMode="numeric"
+                placeholder="Contact number"
+                {...register(`shops.${shopIdx}.harithaKarmaSenaNumber`)}
+              />
+            </Field>
+          )}
         </FieldGroup>
       </div>
     )

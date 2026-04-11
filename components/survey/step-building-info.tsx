@@ -6,6 +6,7 @@ import { MapPinIcon, CheckCircleIcon, AlertCircleIcon, RotateCwIcon, PencilIcon,
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { deletePhoto } from "@/lib/storage/survey-storage"
 import type { GpsStatus } from "./survey-form"
 import {
@@ -22,7 +23,7 @@ import {
   FieldDescription,
   FieldGroup,
 } from "@/components/ui/field"
-import type { BuildingSurvey } from "@/lib/schemas/building-survey"
+import type { BuildingSurvey, FloorDetail } from "@/lib/schemas/building-survey"
 import { WARD_OPTIONS } from "@/lib/constants/options"
 
 interface StepBuildingInfoProps {
@@ -454,48 +455,62 @@ export function StepBuildingInfo({ form, gpsStatus, onRetryGps, pendingPhotos, s
               inputMode="numeric"
               min={0}
               placeholder="0"
-              aria-invalid={!!errors.numberOfFloors}
-              {...register("numberOfFloors", { valueAsNumber: true })}
+              value={watch("numberOfFloors")}
+              onChange={(e) => {
+                const count = parseInt(e.target.value) || 0
+                const current = form.getValues("floors") || []
+                let newFloors: FloorDetail[]
+                if (count > current.length) {
+                  newFloors = [
+                    ...current,
+                    ...Array.from({ length: count - current.length }, (_, i) => ({
+                      floorNumber: current.length + i + 1,
+                      roofType: "terrace" as const,
+                    })),
+                  ]
+                } else {
+                  newFloors = current.slice(0, count)
+                }
+                setValue("numberOfFloors", count)
+                setValue("floors", newFloors)
+              }}
             />
             {errors.numberOfFloors && (
               <FieldDescription>{errors.numberOfFloors.message}</FieldDescription>
             )}
           </Field>
-
-          <div className="grid grid-cols-2 gap-3">
-            <Field data-invalid={errors.terraceFloors ? true : undefined}>
-              <FieldLabel htmlFor="terraceFloors">Terrace Floors</FieldLabel>
-              <Input
-                id="terraceFloors"
-                type="number"
-                inputMode="numeric"
-                min={0}
-                placeholder="0"
-                aria-invalid={!!errors.terraceFloors}
-                {...register("terraceFloors", { valueAsNumber: true })}
-              />
-              {errors.terraceFloors && (
-                <FieldDescription>{errors.terraceFloors.message}</FieldDescription>
-              )}
-            </Field>
-
-            <Field data-invalid={errors.sheetFloors ? true : undefined}>
-              <FieldLabel htmlFor="sheetFloors">Sheet/ഓട് Floors</FieldLabel>
-              <Input
-                id="sheetFloors"
-                type="number"
-                inputMode="numeric"
-                min={0}
-                placeholder="0"
-                aria-invalid={!!errors.sheetFloors}
-                {...register("sheetFloors", { valueAsNumber: true })}
-              />
-              {errors.sheetFloors && (
-                <FieldDescription>{errors.sheetFloors.message}</FieldDescription>
-              )}
-            </Field>
-          </div>
         </FieldGroup>
+
+        {/* Dynamic floor list */}
+        {(watch("floors") || []).length > 0 && (
+          <div className="flex flex-col gap-2">
+            {(watch("floors") || []).map((floor, index) => (
+              <div key={index} className="flex items-center gap-3 rounded-lg border p-2">
+                <span className="w-16 text-sm font-medium">Floor {floor.floorNumber}</span>
+                <ToggleGroup
+                  type="single"
+                  value={floor.roofType}
+                  onValueChange={(val) => {
+                    if (val) {
+                      const current = form.getValues("floors") || []
+                      const updated = [...current]
+                      updated[index] = { ...updated[index], roofType: val as "terrace" | "sheet" }
+                      setValue("floors", updated)
+                    }
+                  }}
+                  className="flex-1"
+                >
+                  <ToggleGroupItem value="terrace" className="flex-1 text-xs">
+                    Terrace
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="sheet" className="flex-1 text-xs">
+                    Sheet/ഓട്
+                  </ToggleGroupItem>
+                </ToggleGroup>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Floor Base Section */}

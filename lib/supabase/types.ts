@@ -33,8 +33,7 @@ export type Database = {
           manager_name: string | null
           manager_contact_no: string | null
           number_of_floors: number
-          terrace_floors: number
-          sheet_floors: number
+          floors: FloorDetail[] | null
           staircase_count: number
           lift_count: number
           total_toilets: number
@@ -64,8 +63,7 @@ export type Database = {
           manager_name?: string | null
           manager_contact_no?: string | null
           number_of_floors?: number
-          terrace_floors?: number
-          sheet_floors?: number
+          floors?: FloorDetail[] | null
           staircase_count?: number
           lift_count?: number
           total_toilets?: number
@@ -95,8 +93,7 @@ export type Database = {
           manager_name?: string | null
           manager_contact_no?: string | null
           number_of_floors?: number
-          terrace_floors?: number
-          sheet_floors?: number
+          floors?: FloorDetail[] | null
           staircase_count?: number
           lift_count?: number
           total_toilets?: number

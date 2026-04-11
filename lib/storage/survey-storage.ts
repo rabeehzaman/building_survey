@@ -142,8 +142,7 @@ export async function createBuilding(
       manager_name: survey.managerName,
       manager_contact_no: survey.managerContactNo,
       number_of_floors: survey.numberOfFloors,
-      terrace_floors: survey.terraceFloors,
-      sheet_floors: survey.sheetFloors,
+      floors: survey.floors,
       staircase_count: survey.staircaseCount,
       lift_count: survey.liftCount,
       total_toilets: survey.totalToilets,
@@ -186,6 +185,8 @@ export async function createBuilding(
         plasticWaste: shop.wasteManagement.plasticWaste || "",
         otherWaste: shop.wasteManagement.otherWaste || "",
       },
+      haritha_karma_sena: shop.harithaKarmaSena || false,
+      haritha_karma_sena_number: shop.harithaKarmaSenaNumber || null,
     }))
 
     const { error: shopsError } = await supabase
@@ -218,8 +219,7 @@ export async function updateBuilding(
       manager_name: survey.managerName,
       manager_contact_no: survey.managerContactNo,
       number_of_floors: survey.numberOfFloors,
-      terrace_floors: survey.terraceFloors,
-      sheet_floors: survey.sheetFloors,
+      floors: survey.floors,
       staircase_count: survey.staircaseCount,
       lift_count: survey.liftCount,
       total_toilets: survey.totalToilets,
@@ -269,6 +269,8 @@ export async function updateBuilding(
         plasticWaste: shop.wasteManagement.plasticWaste || "",
         otherWaste: shop.wasteManagement.otherWaste || "",
       },
+      haritha_karma_sena: shop.harithaKarmaSena || false,
+      haritha_karma_sena_number: shop.harithaKarmaSenaNumber || null,
     }))
 
     const { error: shopsError } = await supabase
@@ -309,8 +311,7 @@ export function buildingToFormData(building: BuildingWithShops): BuildingSurvey 
     managerName: building.manager_name || "",
     managerContactNo: building.manager_contact_no || "",
     numberOfFloors: building.number_of_floors || 0,
-    terraceFloors: building.terrace_floors || 0,
-    sheetFloors: building.sheet_floors || 0,
+    floors: (building.floors as any[]) || [],
     staircaseCount: building.staircase_count || 0,
     liftCount: building.lift_count || 0,
     totalToilets: building.total_toilets || 0,
@@ -344,6 +345,8 @@ export function buildingToFormData(building: BuildingWithShops): BuildingSurvey 
         plasticWaste: "",
         otherWaste: "",
       },
+      harithaKarmaSena: (shop as any).haritha_karma_sena ?? false,
+      harithaKarmaSenaNumber: (shop as any).haritha_karma_sena_number || "",
     })),
   }
 }

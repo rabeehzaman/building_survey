@@ -1,7 +1,7 @@
 import * as XLSX from "xlsx"
 import { saveAs } from "file-saver"
 import type { BuildingWithShops } from "@/lib/storage/survey-storage"
-import type { RoomDetail, WasteManagement } from "@/lib/supabase/types"
+import type { FloorDetail, RoomDetail, WasteManagement } from "@/lib/supabase/types"
 
 function formatRooms(rooms: RoomDetail[] | null): string {
   if (!rooms || rooms.length === 0) return ""
@@ -41,8 +41,7 @@ function flattenForExport(buildings: BuildingWithShops[]) {
       "Manager Name": b.manager_name || "",
       "Manager Contact": b.manager_contact_no || "",
       "Number of Floors": b.number_of_floors,
-      "Terrace Floors": b.terrace_floors,
-      "Sheet Floors": b.sheet_floors,
+      "Floor Details": ((b.floors as FloorDetail[]) || []).map(f => `Floor ${f.floorNumber}: ${f.roofType}`).join(", "),
       Staircase: b.staircase_count,
       Lift: b.lift_count,
       "Total Toilets": b.total_toilets,

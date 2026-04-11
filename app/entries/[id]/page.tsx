@@ -21,7 +21,7 @@ import {
   getBuildingById,
   type BuildingWithShops,
 } from "@/lib/storage/survey-storage"
-import type { RoomDetail, WasteManagement } from "@/lib/supabase/types"
+import type { FloorDetail, RoomDetail, WasteManagement } from "@/lib/supabase/types"
 
 function DetailRow({ label, value }: { label: string; value: string }) {
   if (!value) return null
@@ -147,20 +147,13 @@ export default function EntryDetailPage() {
           {/* Floor Details */}
           {building.number_of_floors > 0 && (
             <div className="mt-4 rounded-lg border p-3">
-              <span className="text-xs font-medium text-muted-foreground">Floor Details</span>
-              <div className="mt-2 grid grid-cols-3 gap-2 text-center">
-                <div>
-                  <span className="text-lg font-semibold">{building.number_of_floors}</span>
-                  <p className="text-xs text-muted-foreground">Total Floors</p>
-                </div>
-                <div>
-                  <span className="text-lg font-semibold">{building.terrace_floors}</span>
-                  <p className="text-xs text-muted-foreground">Terrace</p>
-                </div>
-                <div>
-                  <span className="text-lg font-semibold">{building.sheet_floors}</span>
-                  <p className="text-xs text-muted-foreground">Sheet/ഓട്</p>
-                </div>
+              <span className="text-xs font-medium text-muted-foreground">Floor Details ({building.number_of_floors} floors)</span>
+              <div className="mt-2 flex flex-wrap gap-1">
+                {((building.floors as FloorDetail[]) || []).map((f, i) => (
+                  <Badge key={i} variant={f.roofType === "terrace" ? "secondary" : "outline"} className="text-xs">
+                    Floor {f.floorNumber}: {f.roofType === "terrace" ? "Terrace" : "Sheet/ഓട്"}
+                  </Badge>
+                ))}
               </div>
             </div>
           )}

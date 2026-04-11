@@ -8,7 +8,7 @@ import {
 } from "@react-pdf/renderer"
 import { saveAs } from "file-saver"
 import type { BuildingWithShops } from "@/lib/storage/survey-storage"
-import type { RoomDetail, WasteManagement } from "@/lib/supabase/types"
+import type { FloorDetail, RoomDetail, WasteManagement } from "@/lib/supabase/types"
 
 const colors = {
   primary: "#18181b",
@@ -213,7 +213,7 @@ function BuildingPage({ building }: { building: BuildingWithShops }) {
     { label: "Owner Mobile 2", value: building.mob_no_2 || "" },
     { label: "Manager Name", value: building.manager_name || "" },
     { label: "Manager Contact", value: building.manager_contact_no || "" },
-    { label: "Floors", value: building.number_of_floors > 0 ? `${building.number_of_floors} (Terrace: ${building.terrace_floors}, Sheet: ${building.sheet_floors})` : "" },
+    { label: "Floors", value: building.number_of_floors > 0 ? ((building.floors as FloorDetail[]) || []).map(f => `Floor ${f.floorNumber}: ${f.roofType}`).join(", ") : "" },
     { label: "Staircase", value: building.staircase_count > 0 ? String(building.staircase_count) : "" },
     { label: "Lift", value: building.lift_count > 0 ? String(building.lift_count) : "" },
     { label: "Toilets", value: building.total_toilets > 0 ? `${building.total_toilets} (Usable: ${building.usable_toilets}, Unusable: ${building.unusable_toilets})` : "" },
