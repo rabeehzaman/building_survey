@@ -35,9 +35,11 @@ export type Database = {
           number_of_floors: number
           terrace_floors: number
           sheet_floors: number
-          has_staircase: boolean
-          has_lift: boolean
-          toilet_status: "usable" | "unusable" | "none"
+          staircase_count: number
+          lift_count: number
+          total_toilets: number
+          usable_toilets: number
+          unusable_toilets: number
           building_status: "vacant" | "working"
           vacancy_period: string | null
           has_shops: boolean
@@ -64,9 +66,11 @@ export type Database = {
           number_of_floors?: number
           terrace_floors?: number
           sheet_floors?: number
-          has_staircase?: boolean
-          has_lift?: boolean
-          toilet_status?: "usable" | "unusable" | "none"
+          staircase_count?: number
+          lift_count?: number
+          total_toilets?: number
+          usable_toilets?: number
+          unusable_toilets?: number
           building_status: "vacant" | "working"
           vacancy_period?: string | null
           has_shops?: boolean
@@ -93,9 +97,11 @@ export type Database = {
           number_of_floors?: number
           terrace_floors?: number
           sheet_floors?: number
-          has_staircase?: boolean
-          has_lift?: boolean
-          toilet_status?: "usable" | "unusable" | "none"
+          staircase_count?: number
+          lift_count?: number
+          total_toilets?: number
+          usable_toilets?: number
+          unusable_toilets?: number
           building_status?: "vacant" | "working"
           vacancy_period?: string | null
           has_shops?: boolean

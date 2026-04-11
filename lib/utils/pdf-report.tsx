@@ -214,9 +214,9 @@ function BuildingPage({ building }: { building: BuildingWithShops }) {
     { label: "Manager Name", value: building.manager_name || "" },
     { label: "Manager Contact", value: building.manager_contact_no || "" },
     { label: "Floors", value: building.number_of_floors > 0 ? `${building.number_of_floors} (Terrace: ${building.terrace_floors}, Sheet: ${building.sheet_floors})` : "" },
-    { label: "Staircase", value: building.has_staircase ? "Yes" : "No" },
-    { label: "Lift", value: building.has_lift ? "Yes" : "No" },
-    { label: "Toilet", value: building.toilet_status },
+    { label: "Staircase", value: building.staircase_count > 0 ? String(building.staircase_count) : "" },
+    { label: "Lift", value: building.lift_count > 0 ? String(building.lift_count) : "" },
+    { label: "Toilets", value: building.total_toilets > 0 ? `${building.total_toilets} (Usable: ${building.usable_toilets}, Unusable: ${building.unusable_toilets})` : "" },
     { label: "Building Status", value: building.building_status.toUpperCase() },
     ...(building.building_status === "vacant"
       ? [{ label: "Vacancy Period", value: building.vacancy_period || "" }]

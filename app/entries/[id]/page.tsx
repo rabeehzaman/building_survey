@@ -168,17 +168,26 @@ export default function EntryDetailPage() {
           {/* Floor Base */}
           <div className="mt-4 rounded-lg border p-3">
             <span className="text-xs font-medium text-muted-foreground">Floor Base</span>
-            <div className="mt-2 flex gap-3">
-              <Badge variant={building.has_staircase ? "secondary" : "outline"}>
-                Staircase: {building.has_staircase ? "Yes" : "No"}
-              </Badge>
-              <Badge variant={building.has_lift ? "secondary" : "outline"}>
-                Lift: {building.has_lift ? "Yes" : "No"}
-              </Badge>
-              <Badge variant="outline">
-                Toilet: {building.toilet_status}
-              </Badge>
+            <div className="mt-2 grid grid-cols-3 gap-2 text-center">
+              <div>
+                <span className="text-lg font-semibold">{building.staircase_count}</span>
+                <p className="text-xs text-muted-foreground">Staircase</p>
+              </div>
+              <div>
+                <span className="text-lg font-semibold">{building.lift_count}</span>
+                <p className="text-xs text-muted-foreground">Lift</p>
+              </div>
+              <div>
+                <span className="text-lg font-semibold">{building.total_toilets}</span>
+                <p className="text-xs text-muted-foreground">Toilets</p>
+              </div>
             </div>
+            {building.total_toilets > 0 && (
+              <div className="mt-2 flex justify-center gap-3">
+                <Badge variant="secondary" className="text-xs">Usable: {building.usable_toilets}</Badge>
+                <Badge variant="outline" className="text-xs">Unusable: {building.unusable_toilets}</Badge>
+              </div>
+            )}
           </div>
 
           {/* Room Summary */}

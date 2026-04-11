@@ -5,9 +5,7 @@ import type { UseFormReturn } from "react-hook-form"
 import { MapPinIcon, CheckCircleIcon, AlertCircleIcon, RotateCwIcon, PencilIcon, XIcon, CameraIcon, ImageIcon } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Switch } from "@/components/ui/switch"
 import { Spinner } from "@/components/ui/spinner"
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { deletePhoto } from "@/lib/storage/survey-storage"
 import type { GpsStatus } from "./survey-form"
 import {
@@ -25,7 +23,7 @@ import {
   FieldGroup,
 } from "@/components/ui/field"
 import type { BuildingSurvey } from "@/lib/schemas/building-survey"
-import { WARD_OPTIONS, TOILET_STATUS_OPTIONS } from "@/lib/constants/options"
+import { WARD_OPTIONS } from "@/lib/constants/options"
 
 interface StepBuildingInfoProps {
   form: UseFormReturn<BuildingSurvey, any, any>
@@ -54,8 +52,6 @@ export function StepBuildingInfo({ form, gpsStatus, onRetryGps, pendingPhotos, s
 
   const hasCoords = latitude != null && longitude != null
   const showCaptured = gpsStatus === "captured" && hasCoords && !gpsCleared
-
-  const toiletStatus = watch("toiletStatus")
 
   return (
     <div className="flex flex-col gap-6">
@@ -506,45 +502,89 @@ export function StepBuildingInfo({ form, gpsStatus, onRetryGps, pendingPhotos, s
       <div className="flex flex-col gap-4 rounded-lg border p-3">
         <span className="text-sm font-medium">Floor Base</span>
         <FieldGroup>
-          <Field>
-            <div className="flex items-center justify-between">
-              <FieldLabel htmlFor="hasStaircase">Staircase</FieldLabel>
-              <Switch
-                id="hasStaircase"
-                checked={watch("hasStaircase")}
-                onCheckedChange={(checked) => setValue("hasStaircase", checked)}
+          <div className="grid grid-cols-2 gap-3">
+            <Field data-invalid={errors.staircaseCount ? true : undefined}>
+              <FieldLabel htmlFor="staircaseCount">Staircase</FieldLabel>
+              <Input
+                id="staircaseCount"
+                type="number"
+                inputMode="numeric"
+                min={0}
+                placeholder="0"
+                aria-invalid={!!errors.staircaseCount}
+                {...register("staircaseCount", { valueAsNumber: true })}
               />
-            </div>
+              {errors.staircaseCount && (
+                <FieldDescription>{errors.staircaseCount.message}</FieldDescription>
+              )}
+            </Field>
+
+            <Field data-invalid={errors.liftCount ? true : undefined}>
+              <FieldLabel htmlFor="liftCount">Lift</FieldLabel>
+              <Input
+                id="liftCount"
+                type="number"
+                inputMode="numeric"
+                min={0}
+                placeholder="0"
+                aria-invalid={!!errors.liftCount}
+                {...register("liftCount", { valueAsNumber: true })}
+              />
+              {errors.liftCount && (
+                <FieldDescription>{errors.liftCount.message}</FieldDescription>
+              )}
+            </Field>
+          </div>
+
+          <Field data-invalid={errors.totalToilets ? true : undefined}>
+            <FieldLabel htmlFor="totalToilets">Total Toilets</FieldLabel>
+            <Input
+              id="totalToilets"
+              type="number"
+              inputMode="numeric"
+              min={0}
+              placeholder="0"
+              aria-invalid={!!errors.totalToilets}
+              {...register("totalToilets", { valueAsNumber: true })}
+            />
+            {errors.totalToilets && (
+              <FieldDescription>{errors.totalToilets.message}</FieldDescription>
+            )}
           </Field>
 
-          <Field>
-            <div className="flex items-center justify-between">
-              <FieldLabel htmlFor="hasLift">Lift</FieldLabel>
-              <Switch
-                id="hasLift"
-                checked={watch("hasLift")}
-                onCheckedChange={(checked) => setValue("hasLift", checked)}
+          <div className="grid grid-cols-2 gap-3">
+            <Field data-invalid={errors.usableToilets ? true : undefined}>
+              <FieldLabel htmlFor="usableToilets">Usable</FieldLabel>
+              <Input
+                id="usableToilets"
+                type="number"
+                inputMode="numeric"
+                min={0}
+                placeholder="0"
+                aria-invalid={!!errors.usableToilets}
+                {...register("usableToilets", { valueAsNumber: true })}
               />
-            </div>
-          </Field>
+              {errors.usableToilets && (
+                <FieldDescription>{errors.usableToilets.message}</FieldDescription>
+              )}
+            </Field>
 
-          <Field>
-            <FieldLabel>Toilet</FieldLabel>
-            <ToggleGroup
-              type="single"
-              value={toiletStatus}
-              onValueChange={(val) => {
-                if (val) setValue("toiletStatus", val as "usable" | "unusable" | "none", { shouldValidate: true })
-              }}
-              className="justify-start"
-            >
-              {TOILET_STATUS_OPTIONS.map((opt) => (
-                <ToggleGroupItem key={opt.value} value={opt.value} className="flex-1">
-                  {opt.label}
-                </ToggleGroupItem>
-              ))}
-            </ToggleGroup>
-          </Field>
+            <Field data-invalid={errors.unusableToilets ? true : undefined}>
+              <FieldLabel htmlFor="unusableToilets">Unusable</FieldLabel>
+              <Input
+                id="unusableToilets"
+                type="number"
+                inputMode="numeric"
+                min={0}
+                placeholder="0"
+                aria-invalid={!!errors.unusableToilets}
+                {...register("unusableToilets", { valueAsNumber: true })}
+              />
+              {errors.unusableToilets && (
+                <FieldDescription>{errors.unusableToilets.message}</FieldDescription>
+              )}
+            </Field>
+          </div>
         </FieldGroup>
       </div>
     </div>
