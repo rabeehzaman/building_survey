@@ -329,12 +329,12 @@ export default function EntryDetailPage() {
                       <span className="text-xs font-medium text-muted-foreground">
                         Waste Management
                       </span>
-                      <div className="mt-1 flex flex-wrap gap-1">
-                        {waste.water && <Badge variant="secondary" className="text-xs">Water</Badge>}
-                        {waste.foodWaste && <Badge variant="secondary" className="text-xs">Food Waste</Badge>}
-                        {waste.paperWaste && <Badge variant="secondary" className="text-xs">Paper Waste</Badge>}
-                        {waste.plasticWaste && <Badge variant="secondary" className="text-xs">Plastic Waste</Badge>}
-                        {waste.otherWaste && <Badge variant="outline" className="text-xs">{waste.otherWaste}</Badge>}
+                      <div className="mt-2 grid grid-cols-1 gap-2">
+                        {waste.water && <DetailRow label="Water" value={waste.water} />}
+                        {waste.foodWaste && <DetailRow label="Food Waste" value={waste.foodWaste} />}
+                        {waste.paperWaste && <DetailRow label="Paper Waste" value={waste.paperWaste} />}
+                        {waste.plasticWaste && <DetailRow label="Plastic Waste" value={waste.plasticWaste} />}
+                        {waste.otherWaste && <DetailRow label="Other" value={waste.otherWaste} />}
                       </div>
                     </div>
                   )}

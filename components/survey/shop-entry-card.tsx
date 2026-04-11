@@ -5,8 +5,6 @@ import { TrashIcon } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Label } from "@/components/ui/label"
 import {
   Select,
   SelectContent,
@@ -321,68 +319,48 @@ export function ShopEntryCard({
           {/* Waste Management Section */}
           <div className="flex flex-col gap-3 rounded-lg border p-3">
             <span className="text-sm font-medium">Waste Management</span>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  id={`${prefix}.wasteManagement.water`}
-                  checked={watch(`shops.${index}.wasteManagement.water`)}
-                  onCheckedChange={(checked) =>
-                    setValue(`shops.${index}.wasteManagement.water`, !!checked)
-                  }
-                />
-                <Label htmlFor={`${prefix}.wasteManagement.water`} className="text-sm">
-                  Water
-                </Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  id={`${prefix}.wasteManagement.foodWaste`}
-                  checked={watch(`shops.${index}.wasteManagement.foodWaste`)}
-                  onCheckedChange={(checked) =>
-                    setValue(`shops.${index}.wasteManagement.foodWaste`, !!checked)
-                  }
-                />
-                <Label htmlFor={`${prefix}.wasteManagement.foodWaste`} className="text-sm">
-                  Food Waste
-                </Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  id={`${prefix}.wasteManagement.paperWaste`}
-                  checked={watch(`shops.${index}.wasteManagement.paperWaste`)}
-                  onCheckedChange={(checked) =>
-                    setValue(`shops.${index}.wasteManagement.paperWaste`, !!checked)
-                  }
-                />
-                <Label htmlFor={`${prefix}.wasteManagement.paperWaste`} className="text-sm">
-                  Paper Waste
-                </Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  id={`${prefix}.wasteManagement.plasticWaste`}
-                  checked={watch(`shops.${index}.wasteManagement.plasticWaste`)}
-                  onCheckedChange={(checked) =>
-                    setValue(`shops.${index}.wasteManagement.plasticWaste`, !!checked)
-                  }
-                />
-                <Label htmlFor={`${prefix}.wasteManagement.plasticWaste`} className="text-sm">
-                  Plastic Waste
-                </Label>
-              </div>
-            </div>
-            <div>
-              <Label htmlFor={`${prefix}.wasteManagement.otherWaste`} className="text-sm">
-                Other Waste{" "}
-                <span className="text-muted-foreground font-normal">(Optional)</span>
-              </Label>
+            <Field>
+              <FieldLabel htmlFor={`${prefix}.wasteManagement.water`}>Water</FieldLabel>
+              <Input
+                id={`${prefix}.wasteManagement.water`}
+                placeholder="How is water waste managed?"
+                {...register(`shops.${index}.wasteManagement.water`)}
+              />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor={`${prefix}.wasteManagement.foodWaste`}>Food Waste</FieldLabel>
+              <Input
+                id={`${prefix}.wasteManagement.foodWaste`}
+                placeholder="How is food waste managed?"
+                {...register(`shops.${index}.wasteManagement.foodWaste`)}
+              />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor={`${prefix}.wasteManagement.paperWaste`}>Paper Waste</FieldLabel>
+              <Input
+                id={`${prefix}.wasteManagement.paperWaste`}
+                placeholder="How is paper waste managed?"
+                {...register(`shops.${index}.wasteManagement.paperWaste`)}
+              />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor={`${prefix}.wasteManagement.plasticWaste`}>Plastic Waste</FieldLabel>
+              <Input
+                id={`${prefix}.wasteManagement.plasticWaste`}
+                placeholder="How is plastic waste managed?"
+                {...register(`shops.${index}.wasteManagement.plasticWaste`)}
+              />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor={`${prefix}.wasteManagement.otherWaste`}>
+                Other Waste <span className="text-muted-foreground font-normal">(Optional)</span>
+              </FieldLabel>
               <Input
                 id={`${prefix}.wasteManagement.otherWaste`}
-                placeholder="Describe other waste"
-                className="mt-1"
+                placeholder="Any other waste management"
                 {...register(`shops.${index}.wasteManagement.otherWaste`)}
               />
-            </div>
+            </Field>
           </div>
         </FieldGroup>
       </CardContent>

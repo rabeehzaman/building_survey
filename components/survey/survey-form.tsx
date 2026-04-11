@@ -12,13 +12,11 @@ import { Progress } from "@/components/ui/progress"
 import { Spinner } from "@/components/ui/spinner"
 import { StepBuildingInfo } from "./step-building-info"
 import { StepBuildingStatus } from "./step-building-status"
-import { StepShopDetails } from "./step-shop-details"
 import { useMultiStepForm } from "@/hooks/use-multi-step-form"
 import {
   buildingSurveySchema,
   step1Schema,
   step2Schema,
-  step3Schema,
   type BuildingSurvey,
 } from "@/lib/schemas/building-survey"
 import {
@@ -100,14 +98,11 @@ export function SurveyForm({ defaultValues, editId }: SurveyFormProps) {
     else setGpsStatus("unsupported")
   }, [editId, defaultValues, captureGps])
 
-  const hasShops = form.watch("hasShops")
-  const totalSteps = hasShops ? 3 : 2
+  const totalSteps = 2
   const { currentStep, goNext, goPrev, isFirstStep, isLastStep, progress } =
     useMultiStepForm(totalSteps)
 
-  const stepLabels = hasShops
-    ? ["Building Info", "Status", "Shop Details"]
-    : ["Building Info", "Status"]
+  const stepLabels = ["Building Info", "Status & Rooms"]
 
   async function validateCurrentStep(): Promise<boolean> {
     const values = form.getValues()
@@ -144,45 +139,7 @@ export function SurveyForm({ defaultValues, editId }: SurveyFormProps) {
         })
         return false
       }
-      // If enabling shops and no shops yet, add an empty one
-      if (values.hasShops && (!values.shops || values.shops.length === 0)) {
-        form.setValue("shops", [
-          {
-            shopName: "",
-            shopCategory: "",
-            hasLicense: true,
-            shopLicenceNo: "",
-            shopLicenseeName: "",
-            licenseeContactNo: "",
-            ownerName: "",
-            ownerContactNo: "",
-            shopManagingPerson: "",
-            managingPersonContactNo: "",
-            connectedRoom: "",
-            roomNumber: "",
-            wasteManagement: {
-              water: false,
-              foodWaste: false,
-              paperWaste: false,
-              plasticWaste: false,
-              otherWaste: "",
-            },
-          },
-        ])
-      }
       return true
-    }
-
-    if (currentStep === 2) {
-      const result = step3Schema.safeParse({ shops: values.shops })
-      if (!result.success) {
-        result.error.issues.forEach((issue) => {
-          const path = issue.path.join(".") as any
-          form.setError(path, { message: issue.message })
-        })
-        return false
-      }
-      return await form.trigger("shops")
     }
 
     return true
@@ -198,6 +155,9 @@ export function SurveyForm({ defaultValues, editId }: SurveyFormProps) {
     if (!valid) return
 
     const values = form.getValues()
+
+    // Auto-set hasShops based on whether shops exist
+    values.hasShops = (values.shops && values.shops.length > 0) || false
 
     // Final full validation
     const fullResult = buildingSurveySchema.safeParse(values)
@@ -266,7 +226,6 @@ export function SurveyForm({ defaultValues, editId }: SurveyFormProps) {
       <form onSubmit={(e) => e.preventDefault()}>
         {currentStep === 0 && <StepBuildingInfo form={form} gpsStatus={gpsStatus} onRetryGps={captureGps} pendingPhotos={pendingPhotos} setPendingPhotos={setPendingPhotos} />}
         {currentStep === 1 && <StepBuildingStatus form={form} />}
-        {currentStep === 2 && hasShops && <StepShopDetails form={form} />}
       </form>
 
       {/* Navigation */}

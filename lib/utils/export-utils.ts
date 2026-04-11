@@ -13,12 +13,12 @@ function formatRooms(rooms: RoomDetail[] | null): string {
 function formatWaste(wm: WasteManagement | null): string {
   if (!wm) return ""
   const parts: string[] = []
-  if (wm.water) parts.push("Water")
-  if (wm.foodWaste) parts.push("Food Waste")
-  if (wm.paperWaste) parts.push("Paper Waste")
-  if (wm.plasticWaste) parts.push("Plastic Waste")
-  if (wm.otherWaste) parts.push(wm.otherWaste)
-  return parts.join(", ")
+  if (wm.water) parts.push(`Water: ${wm.water}`)
+  if (wm.foodWaste) parts.push(`Food: ${wm.foodWaste}`)
+  if (wm.paperWaste) parts.push(`Paper: ${wm.paperWaste}`)
+  if (wm.plasticWaste) parts.push(`Plastic: ${wm.plasticWaste}`)
+  if (wm.otherWaste) parts.push(`Other: ${wm.otherWaste}`)
+  return parts.join("; ")
 }
 
 function flattenForExport(buildings: BuildingWithShops[]) {

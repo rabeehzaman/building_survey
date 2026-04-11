@@ -9,10 +9,10 @@ export type RoomDetail = {
 }
 
 export type WasteManagement = {
-  water: boolean
-  foodWaste: boolean
-  paperWaste: boolean
-  plasticWaste: boolean
+  water: string
+  foodWaste: string
+  paperWaste: string
+  plasticWaste: string
   otherWaste: string
 }
 

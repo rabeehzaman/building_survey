@@ -28,10 +28,10 @@ const emptyShop = {
   connectedRoom: "",
   roomNumber: "",
   wasteManagement: {
-    water: false,
-    foodWaste: false,
-    paperWaste: false,
-    plasticWaste: false,
+    water: "",
+    foodWaste: "",
+    paperWaste: "",
+    plasticWaste: "",
     otherWaste: "",
   },
 }

@@ -16,10 +16,10 @@ export const roomDetailSchema = z.object({
 })
 
 export const wasteManagementSchema = z.object({
-  water: z.boolean(),
-  foodWaste: z.boolean(),
-  paperWaste: z.boolean(),
-  plasticWaste: z.boolean(),
+  water: z.string().optional(),
+  foodWaste: z.string().optional(),
+  paperWaste: z.string().optional(),
+  plasticWaste: z.string().optional(),
   otherWaste: z.string().optional(),
 })
 
@@ -125,7 +125,7 @@ export const buildingSurveySchema = z
     // Photos (optional)
     photos: z.array(z.string()).optional(),
 
-    // Step 3: Shop Details (conditional)
+    // Shop Details (linked to rooms via roomNumber)
     shops: z.array(shopDetailSchema).optional(),
   })
   .refine(
@@ -170,7 +170,6 @@ export const step2Schema = z
   .object({
     buildingStatus: z.enum(["working", "vacant"]),
     vacancyPeriod: z.string().optional(),
-    hasShops: z.boolean(),
     totalRooms: z.coerce.number().min(0, "Must be 0 or more"),
     rooms: z.array(roomDetailSchema),
   })
@@ -183,10 +182,6 @@ export const step2Schema = z
       path: ["vacancyPeriod"],
     }
   )
-
-export const step3Schema = z.object({
-  shops: z.array(shopDetailSchema).min(1, "At least one shop is required"),
-})
 
 export type RoomDetail = z.infer<typeof roomDetailSchema>
 export type WasteManagement = z.infer<typeof wasteManagementSchema>
