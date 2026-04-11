@@ -1,18 +1,48 @@
+export type FloorDetail = {
+  floorNumber: number
+  roofType: "terrace" | "sheet"
+}
+
+export type RoomDetail = {
+  roomNumber: string
+  status: "vacant" | "occupied"
+}
+
+export type WasteManagement = {
+  water: boolean
+  foodWaste: boolean
+  paperWaste: boolean
+  plasticWaste: boolean
+  otherWaste: string
+}
+
 export type Database = {
   public: {
     Tables: {
       buildings: {
         Row: {
           id: string
-          ward_no: number
-          location: string
+          old_ward_no: number
+          new_ward_no: number
+          place: string
+          road_name: string
           building_number: string
           building_owner_name: string
           owner_mob_no_1: string
           mob_no_2: string | null
+          manager_name: string | null
+          manager_contact_no: string | null
+          number_of_floors: number
+          terrace_floors: number
+          sheet_floors: number
+          has_staircase: boolean
+          has_lift: boolean
+          toilet_status: "usable" | "unusable" | "none"
           building_status: "vacant" | "working"
           vacancy_period: string | null
           has_shops: boolean
+          total_rooms: number
+          rooms: RoomDetail[] | null
           latitude: number | null
           longitude: number | null
           photos: string[] | null
@@ -21,15 +51,27 @@ export type Database = {
         }
         Insert: {
           id?: string
-          ward_no: number
-          location: string
+          old_ward_no: number
+          new_ward_no: number
+          place: string
+          road_name: string
           building_number: string
           building_owner_name: string
           owner_mob_no_1: string
           mob_no_2?: string | null
+          manager_name?: string | null
+          manager_contact_no?: string | null
+          number_of_floors?: number
+          terrace_floors?: number
+          sheet_floors?: number
+          has_staircase?: boolean
+          has_lift?: boolean
+          toilet_status?: "usable" | "unusable" | "none"
           building_status: "vacant" | "working"
           vacancy_period?: string | null
           has_shops?: boolean
+          total_rooms?: number
+          rooms?: RoomDetail[] | null
           latitude?: number | null
           longitude?: number | null
           photos?: string[] | null
@@ -38,15 +80,27 @@ export type Database = {
         }
         Update: {
           id?: string
-          ward_no?: number
-          location?: string
+          old_ward_no?: number
+          new_ward_no?: number
+          place?: string
+          road_name?: string
           building_number?: string
           building_owner_name?: string
           owner_mob_no_1?: string
           mob_no_2?: string | null
+          manager_name?: string | null
+          manager_contact_no?: string | null
+          number_of_floors?: number
+          terrace_floors?: number
+          sheet_floors?: number
+          has_staircase?: boolean
+          has_lift?: boolean
+          toilet_status?: "usable" | "unusable" | "none"
           building_status?: "vacant" | "working"
           vacancy_period?: string | null
           has_shops?: boolean
+          total_rooms?: number
+          rooms?: RoomDetail[] | null
           latitude?: number | null
           longitude?: number | null
           photos?: string[] | null
@@ -67,45 +121,54 @@ export type Database = {
           id: string
           building_id: string
           shop_details: string
-          shop_licence_no: string
-          shop_licensee_name: string
-          licensee_contact_no: string
+          shop_category: string | null
+          has_license: boolean
+          shop_licence_no: string | null
+          shop_licensee_name: string | null
+          licensee_contact_no: string | null
+          owner_name: string | null
+          owner_contact_no: string | null
           shop_managing_person: string
           managing_person_contact_no: string
           connected_room: string | null
-          ward_number: number
           room_number: string
-          location_name: string
+          waste_management: WasteManagement | null
           created_at: string
         }
         Insert: {
           id?: string
           building_id: string
           shop_details: string
-          shop_licence_no: string
-          shop_licensee_name: string
-          licensee_contact_no: string
+          shop_category?: string | null
+          has_license?: boolean
+          shop_licence_no?: string | null
+          shop_licensee_name?: string | null
+          licensee_contact_no?: string | null
+          owner_name?: string | null
+          owner_contact_no?: string | null
           shop_managing_person: string
           managing_person_contact_no: string
           connected_room?: string | null
-          ward_number: number
           room_number: string
-          location_name: string
+          waste_management?: WasteManagement | null
           created_at?: string
         }
         Update: {
           id?: string
           building_id?: string
           shop_details?: string
-          shop_licence_no?: string
-          shop_licensee_name?: string
-          licensee_contact_no?: string
+          shop_category?: string | null
+          has_license?: boolean
+          shop_licence_no?: string | null
+          shop_licensee_name?: string | null
+          licensee_contact_no?: string | null
+          owner_name?: string | null
+          owner_contact_no?: string | null
           shop_managing_person?: string
           managing_person_contact_no?: string
           connected_room?: string | null
-          ward_number?: number
           room_number?: string
-          location_name?: string
+          waste_management?: WasteManagement | null
         }
         Relationships: [
           {
@@ -116,6 +179,23 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      shop_categories: {
+        Row: {
+          id: string
+          name: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+        }
+        Relationships: []
       }
     }
     Views: Record<string, never>

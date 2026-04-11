@@ -125,7 +125,7 @@ export default function HomePage() {
                       {building.building_owner_name}
                     </span>
                     <span className="text-sm text-muted-foreground">
-                      Ward {building.ward_no} &middot; #{building.building_number}
+                      Ward {building.new_ward_no} &middot; #{building.building_number}
                     </span>
                   </div>
                   <Badge

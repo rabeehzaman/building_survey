@@ -3,8 +3,10 @@
 import type { UseFormReturn } from "react-hook-form"
 import { TrashIcon } from "lucide-react"
 import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
+import { Switch } from "@/components/ui/switch"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Label } from "@/components/ui/label"
 import {
   Select,
   SelectContent,
@@ -26,13 +28,13 @@ import {
   FieldGroup,
 } from "@/components/ui/field"
 import type { BuildingSurvey } from "@/lib/schemas/building-survey"
-import { WARD_OPTIONS } from "@/lib/constants/options"
 
 interface ShopEntryCardProps {
   form: UseFormReturn<BuildingSurvey, any, any>
   index: number
   onRemove: () => void
   canRemove: boolean
+  categories: { id: string; name: string }[]
 }
 
 export function ShopEntryCard({
@@ -40,6 +42,7 @@ export function ShopEntryCard({
   index,
   onRemove,
   canRemove,
+  categories,
 }: ShopEntryCardProps) {
   const {
     register,
@@ -50,7 +53,7 @@ export function ShopEntryCard({
 
   const shopErrors = errors.shops?.[index]
   const prefix = `shops.${index}` as const
-  const connectedRoom = watch(`shops.${index}.connectedRoom`)
+  const hasLicense = watch(`shops.${index}.hasLicense`)
 
   return (
     <Card>
@@ -67,103 +70,197 @@ export function ShopEntryCard({
       </CardHeader>
       <CardContent>
         <FieldGroup>
-          <Field data-invalid={shopErrors?.shopDetails ? true : undefined}>
-            <FieldLabel htmlFor={`${prefix}.shopDetails`}>
-              Shop Details
-            </FieldLabel>
-            <Textarea
-              id={`${prefix}.shopDetails`}
-              placeholder="Describe the shop"
-              aria-invalid={!!shopErrors?.shopDetails}
-              {...register(`shops.${index}.shopDetails`)}
-            />
-            {shopErrors?.shopDetails && (
-              <FieldDescription>
-                {shopErrors.shopDetails.message}
-              </FieldDescription>
-            )}
-          </Field>
-
-          <div className="grid grid-cols-2 gap-3">
-            <Field
-              data-invalid={shopErrors?.shopLicenceNo ? true : undefined}
-            >
-              <FieldLabel htmlFor={`${prefix}.shopLicenceNo`}>
-                Licence No
-              </FieldLabel>
-              <Input
-                id={`${prefix}.shopLicenceNo`}
-                placeholder="Licence number"
-                aria-invalid={!!shopErrors?.shopLicenceNo}
-                {...register(`shops.${index}.shopLicenceNo`)}
-              />
-              {shopErrors?.shopLicenceNo && (
-                <FieldDescription>
-                  {shopErrors.shopLicenceNo.message}
-                </FieldDescription>
-              )}
-            </Field>
-
-            <Field
-              data-invalid={shopErrors?.roomNumber ? true : undefined}
-            >
-              <FieldLabel htmlFor={`${prefix}.roomNumber`}>
-                Room Number
-              </FieldLabel>
-              <Input
-                id={`${prefix}.roomNumber`}
-                placeholder="Room number"
-                aria-invalid={!!shopErrors?.roomNumber}
-                {...register(`shops.${index}.roomNumber`)}
-              />
-              {shopErrors?.roomNumber && (
-                <FieldDescription>
-                  {shopErrors.roomNumber.message}
-                </FieldDescription>
-              )}
-            </Field>
-          </div>
-
-          <Field
-            data-invalid={shopErrors?.shopLicenseeName ? true : undefined}
-          >
-            <FieldLabel htmlFor={`${prefix}.shopLicenseeName`}>
-              Licensee Name
+          {/* Shop Name */}
+          <Field data-invalid={shopErrors?.shopName ? true : undefined}>
+            <FieldLabel htmlFor={`${prefix}.shopName`}>
+              Shop Name
             </FieldLabel>
             <Input
-              id={`${prefix}.shopLicenseeName`}
-              placeholder="Licensee name"
-              aria-invalid={!!shopErrors?.shopLicenseeName}
-              {...register(`shops.${index}.shopLicenseeName`)}
+              id={`${prefix}.shopName`}
+              placeholder="Enter shop name"
+              aria-invalid={!!shopErrors?.shopName}
+              {...register(`shops.${index}.shopName`)}
             />
-            {shopErrors?.shopLicenseeName && (
+            {shopErrors?.shopName && (
               <FieldDescription>
-                {shopErrors.shopLicenseeName.message}
+                {shopErrors.shopName.message}
               </FieldDescription>
             )}
           </Field>
 
-          <Field
-            data-invalid={shopErrors?.licenseeContactNo ? true : undefined}
-          >
-            <FieldLabel htmlFor={`${prefix}.licenseeContactNo`}>
-              Licensee Contact No
+          {/* Shop Category */}
+          <Field data-invalid={shopErrors?.shopCategory ? true : undefined}>
+            <FieldLabel htmlFor={`${prefix}.shopCategory`}>
+              Shop Category{" "}
+              <span className="text-muted-foreground font-normal">(Optional)</span>
+            </FieldLabel>
+            <Select
+              value={watch(`shops.${index}.shopCategory`) || ""}
+              onValueChange={(val) =>
+                setValue(`shops.${index}.shopCategory`, val, { shouldValidate: true })
+              }
+            >
+              <SelectTrigger id={`${prefix}.shopCategory`}>
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.name}>
+                      {cat.name}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </Field>
+
+          {/* Room Number & Licence No */}
+          <Field data-invalid={shopErrors?.roomNumber ? true : undefined}>
+            <FieldLabel htmlFor={`${prefix}.roomNumber`}>
+              Room Number
             </FieldLabel>
             <Input
-              id={`${prefix}.licenseeContactNo`}
-              type="tel"
-              inputMode="numeric"
-              placeholder="10-digit number"
-              aria-invalid={!!shopErrors?.licenseeContactNo}
-              {...register(`shops.${index}.licenseeContactNo`)}
+              id={`${prefix}.roomNumber`}
+              placeholder="Room number"
+              aria-invalid={!!shopErrors?.roomNumber}
+              {...register(`shops.${index}.roomNumber`)}
             />
-            {shopErrors?.licenseeContactNo && (
+            {shopErrors?.roomNumber && (
               <FieldDescription>
-                {shopErrors.licenseeContactNo.message}
+                {shopErrors.roomNumber.message}
               </FieldDescription>
             )}
           </Field>
 
+          {/* License Toggle */}
+          <Field>
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-0.5">
+                <FieldLabel htmlFor={`${prefix}.hasLicense`} className="text-base">
+                  Has License?
+                </FieldLabel>
+              </div>
+              <Switch
+                id={`${prefix}.hasLicense`}
+                checked={hasLicense}
+                onCheckedChange={(checked) =>
+                  setValue(`shops.${index}.hasLicense`, checked)
+                }
+              />
+            </div>
+          </Field>
+
+          {/* License Fields - shown when hasLicense is true */}
+          {hasLicense && (
+            <>
+              <Field
+                data-invalid={shopErrors?.shopLicenceNo ? true : undefined}
+              >
+                <FieldLabel htmlFor={`${prefix}.shopLicenceNo`}>
+                  Licence No
+                </FieldLabel>
+                <Input
+                  id={`${prefix}.shopLicenceNo`}
+                  placeholder="Licence number"
+                  aria-invalid={!!shopErrors?.shopLicenceNo}
+                  {...register(`shops.${index}.shopLicenceNo`)}
+                />
+                {shopErrors?.shopLicenceNo && (
+                  <FieldDescription>
+                    {shopErrors.shopLicenceNo.message}
+                  </FieldDescription>
+                )}
+              </Field>
+
+              <Field
+                data-invalid={shopErrors?.shopLicenseeName ? true : undefined}
+              >
+                <FieldLabel htmlFor={`${prefix}.shopLicenseeName`}>
+                  Licensee Name
+                </FieldLabel>
+                <Input
+                  id={`${prefix}.shopLicenseeName`}
+                  placeholder="Licensee name"
+                  aria-invalid={!!shopErrors?.shopLicenseeName}
+                  {...register(`shops.${index}.shopLicenseeName`)}
+                />
+                {shopErrors?.shopLicenseeName && (
+                  <FieldDescription>
+                    {shopErrors.shopLicenseeName.message}
+                  </FieldDescription>
+                )}
+              </Field>
+
+              <Field
+                data-invalid={shopErrors?.licenseeContactNo ? true : undefined}
+              >
+                <FieldLabel htmlFor={`${prefix}.licenseeContactNo`}>
+                  Licensee Contact No
+                </FieldLabel>
+                <Input
+                  id={`${prefix}.licenseeContactNo`}
+                  type="tel"
+                  inputMode="numeric"
+                  placeholder="10-digit number"
+                  aria-invalid={!!shopErrors?.licenseeContactNo}
+                  {...register(`shops.${index}.licenseeContactNo`)}
+                />
+                {shopErrors?.licenseeContactNo && (
+                  <FieldDescription>
+                    {shopErrors.licenseeContactNo.message}
+                  </FieldDescription>
+                )}
+              </Field>
+            </>
+          )}
+
+          {/* Owner Fields - shown when hasLicense is false */}
+          {!hasLicense && (
+            <>
+              <Field
+                data-invalid={shopErrors?.ownerName ? true : undefined}
+              >
+                <FieldLabel htmlFor={`${prefix}.ownerName`}>
+                  Owner Name
+                </FieldLabel>
+                <Input
+                  id={`${prefix}.ownerName`}
+                  placeholder="Owner name"
+                  aria-invalid={!!shopErrors?.ownerName}
+                  {...register(`shops.${index}.ownerName`)}
+                />
+                {shopErrors?.ownerName && (
+                  <FieldDescription>
+                    {shopErrors.ownerName.message}
+                  </FieldDescription>
+                )}
+              </Field>
+
+              <Field
+                data-invalid={shopErrors?.ownerContactNo ? true : undefined}
+              >
+                <FieldLabel htmlFor={`${prefix}.ownerContactNo`}>
+                  Owner Contact No
+                </FieldLabel>
+                <Input
+                  id={`${prefix}.ownerContactNo`}
+                  type="tel"
+                  inputMode="numeric"
+                  placeholder="10-digit number"
+                  aria-invalid={!!shopErrors?.ownerContactNo}
+                  {...register(`shops.${index}.ownerContactNo`)}
+                />
+                {shopErrors?.ownerContactNo && (
+                  <FieldDescription>
+                    {shopErrors.ownerContactNo.message}
+                  </FieldDescription>
+                )}
+              </Field>
+            </>
+          )}
+
+          {/* Managing Person (always shown) */}
           <Field
             data-invalid={shopErrors?.shopManagingPerson ? true : undefined}
           >
@@ -206,6 +303,7 @@ export function ShopEntryCard({
             )}
           </Field>
 
+          {/* Connected Room */}
           <Field>
             <FieldLabel htmlFor={`${prefix}.connectedRoom`}>
               Connected Room{" "}
@@ -220,60 +318,72 @@ export function ShopEntryCard({
             />
           </Field>
 
-          <Field data-invalid={shopErrors?.wardNumber ? true : undefined}>
-            <FieldLabel htmlFor={`${prefix}.wardNumber`}>
-              Ward Number
-            </FieldLabel>
-            <Select
-              value={watch(`shops.${index}.wardNumber`)}
-              onValueChange={(val) =>
-                setValue(`shops.${index}.wardNumber`, val, { shouldValidate: true })
-              }
-            >
-              <SelectTrigger
-                id={`${prefix}.wardNumber`}
-                aria-invalid={!!shopErrors?.wardNumber}
-              >
-                <SelectValue placeholder="Select ward" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  {WARD_OPTIONS.map((ward) => (
-                    <SelectItem key={ward.value} value={ward.value}>
-                      {ward.label}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-            {shopErrors?.wardNumber && (
-              <FieldDescription>
-                {shopErrors.wardNumber.message}
-              </FieldDescription>
-            )}
-          </Field>
-
-          <Field data-invalid={shopErrors?.locationName ? true : undefined}>
-            <FieldLabel htmlFor={`${prefix}.locationName`}>
-              Location Name (Municipality/Panchayath){" "}
-              {!connectedRoom && (
-                <span className="text-muted-foreground font-normal">
-                  (Optional)
-                </span>
-              )}
-            </FieldLabel>
-            <Input
-              id={`${prefix}.locationName`}
-              placeholder="Municipality or Panchayath name"
-              aria-invalid={!!shopErrors?.locationName}
-              {...register(`shops.${index}.locationName`)}
-            />
-            {shopErrors?.locationName && (
-              <FieldDescription>
-                {shopErrors.locationName.message}
-              </FieldDescription>
-            )}
-          </Field>
+          {/* Waste Management Section */}
+          <div className="flex flex-col gap-3 rounded-lg border p-3">
+            <span className="text-sm font-medium">Waste Management</span>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id={`${prefix}.wasteManagement.water`}
+                  checked={watch(`shops.${index}.wasteManagement.water`)}
+                  onCheckedChange={(checked) =>
+                    setValue(`shops.${index}.wasteManagement.water`, !!checked)
+                  }
+                />
+                <Label htmlFor={`${prefix}.wasteManagement.water`} className="text-sm">
+                  Water
+                </Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id={`${prefix}.wasteManagement.foodWaste`}
+                  checked={watch(`shops.${index}.wasteManagement.foodWaste`)}
+                  onCheckedChange={(checked) =>
+                    setValue(`shops.${index}.wasteManagement.foodWaste`, !!checked)
+                  }
+                />
+                <Label htmlFor={`${prefix}.wasteManagement.foodWaste`} className="text-sm">
+                  Food Waste
+                </Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id={`${prefix}.wasteManagement.paperWaste`}
+                  checked={watch(`shops.${index}.wasteManagement.paperWaste`)}
+                  onCheckedChange={(checked) =>
+                    setValue(`shops.${index}.wasteManagement.paperWaste`, !!checked)
+                  }
+                />
+                <Label htmlFor={`${prefix}.wasteManagement.paperWaste`} className="text-sm">
+                  Paper Waste
+                </Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id={`${prefix}.wasteManagement.plasticWaste`}
+                  checked={watch(`shops.${index}.wasteManagement.plasticWaste`)}
+                  onCheckedChange={(checked) =>
+                    setValue(`shops.${index}.wasteManagement.plasticWaste`, !!checked)
+                  }
+                />
+                <Label htmlFor={`${prefix}.wasteManagement.plasticWaste`} className="text-sm">
+                  Plastic Waste
+                </Label>
+              </div>
+            </div>
+            <div>
+              <Label htmlFor={`${prefix}.wasteManagement.otherWaste`} className="text-sm">
+                Other Waste{" "}
+                <span className="text-muted-foreground font-normal">(Optional)</span>
+              </Label>
+              <Input
+                id={`${prefix}.wasteManagement.otherWaste`}
+                placeholder="Describe other waste"
+                className="mt-1"
+                {...register(`shops.${index}.wasteManagement.otherWaste`)}
+              />
+            </div>
+          </div>
         </FieldGroup>
       </CardContent>
     </Card>

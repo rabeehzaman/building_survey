@@ -5,7 +5,9 @@ import type { UseFormReturn } from "react-hook-form"
 import { MapPinIcon, CheckCircleIcon, AlertCircleIcon, RotateCwIcon, PencilIcon, XIcon, CameraIcon, ImageIcon } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { Switch } from "@/components/ui/switch"
 import { Spinner } from "@/components/ui/spinner"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { deletePhoto } from "@/lib/storage/survey-storage"
 import type { GpsStatus } from "./survey-form"
 import {
@@ -23,7 +25,7 @@ import {
   FieldGroup,
 } from "@/components/ui/field"
 import type { BuildingSurvey } from "@/lib/schemas/building-survey"
-import { WARD_OPTIONS } from "@/lib/constants/options"
+import { WARD_OPTIONS, TOILET_STATUS_OPTIONS } from "@/lib/constants/options"
 
 interface StepBuildingInfoProps {
   form: UseFormReturn<BuildingSurvey, any, any>
@@ -52,6 +54,8 @@ export function StepBuildingInfo({ form, gpsStatus, onRetryGps, pendingPhotos, s
 
   const hasCoords = latitude != null && longitude != null
   const showCaptured = gpsStatus === "captured" && hasCoords && !gpsCleared
+
+  const toiletStatus = watch("toiletStatus")
 
   return (
     <div className="flex flex-col gap-6">
@@ -271,40 +275,81 @@ export function StepBuildingInfo({ form, gpsStatus, onRetryGps, pendingPhotos, s
       </div>
 
       <FieldGroup>
-        <Field data-invalid={errors.wardNo ? true : undefined}>
-          <FieldLabel htmlFor="wardNo">Ward No</FieldLabel>
-          <Select
-            value={watch("wardNo")}
-            onValueChange={(val) => setValue("wardNo", val, { shouldValidate: true })}
-          >
-            <SelectTrigger id="wardNo" aria-invalid={!!errors.wardNo}>
-              <SelectValue placeholder="Select ward" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                {WARD_OPTIONS.map((ward) => (
-                  <SelectItem key={ward.value} value={ward.value}>
-                    {ward.label}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-          {errors.wardNo && (
-            <FieldDescription>{errors.wardNo.message}</FieldDescription>
+        {/* Ward - Old & New */}
+        <div className="grid grid-cols-2 gap-3">
+          <Field data-invalid={errors.oldWardNo ? true : undefined}>
+            <FieldLabel htmlFor="oldWardNo">Old Ward</FieldLabel>
+            <Select
+              value={watch("oldWardNo")}
+              onValueChange={(val) => setValue("oldWardNo", val, { shouldValidate: true })}
+            >
+              <SelectTrigger id="oldWardNo" aria-invalid={!!errors.oldWardNo}>
+                <SelectValue placeholder="Select ward" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {WARD_OPTIONS.map((ward) => (
+                    <SelectItem key={ward.value} value={ward.value}>
+                      {ward.label}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            {errors.oldWardNo && (
+              <FieldDescription>{errors.oldWardNo.message}</FieldDescription>
+            )}
+          </Field>
+
+          <Field data-invalid={errors.newWardNo ? true : undefined}>
+            <FieldLabel htmlFor="newWardNo">New Ward</FieldLabel>
+            <Select
+              value={watch("newWardNo")}
+              onValueChange={(val) => setValue("newWardNo", val, { shouldValidate: true })}
+            >
+              <SelectTrigger id="newWardNo" aria-invalid={!!errors.newWardNo}>
+                <SelectValue placeholder="Select ward" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {WARD_OPTIONS.map((ward) => (
+                    <SelectItem key={ward.value} value={ward.value}>
+                      {ward.label}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            {errors.newWardNo && (
+              <FieldDescription>{errors.newWardNo.message}</FieldDescription>
+            )}
+          </Field>
+        </div>
+
+        {/* Place & Road Name */}
+        <Field data-invalid={errors.place ? true : undefined}>
+          <FieldLabel htmlFor="place">Place</FieldLabel>
+          <Input
+            id="place"
+            placeholder="Enter place"
+            aria-invalid={!!errors.place}
+            {...register("place")}
+          />
+          {errors.place && (
+            <FieldDescription>{errors.place.message}</FieldDescription>
           )}
         </Field>
 
-        <Field data-invalid={errors.location ? true : undefined}>
-          <FieldLabel htmlFor="location">Location</FieldLabel>
+        <Field data-invalid={errors.roadName ? true : undefined}>
+          <FieldLabel htmlFor="roadName">Road Name</FieldLabel>
           <Input
-            id="location"
-            placeholder="Enter location"
-            aria-invalid={!!errors.location}
-            {...register("location")}
+            id="roadName"
+            placeholder="Enter road name"
+            aria-invalid={!!errors.roadName}
+            {...register("roadName")}
           />
-          {errors.location && (
-            <FieldDescription>{errors.location.message}</FieldDescription>
+          {errors.roadName && (
+            <FieldDescription>{errors.roadName.message}</FieldDescription>
           )}
         </Field>
 
@@ -370,7 +415,138 @@ export function StepBuildingInfo({ form, gpsStatus, onRetryGps, pendingPhotos, s
             <FieldDescription>{errors.ownerMobNo2.message}</FieldDescription>
           )}
         </Field>
+
+        {/* Manager Fields */}
+        <Field data-invalid={errors.managerName ? true : undefined}>
+          <FieldLabel htmlFor="managerName">Manager Name</FieldLabel>
+          <Input
+            id="managerName"
+            placeholder="Enter manager name"
+            aria-invalid={!!errors.managerName}
+            {...register("managerName")}
+          />
+          {errors.managerName && (
+            <FieldDescription>{errors.managerName.message}</FieldDescription>
+          )}
+        </Field>
+
+        <Field data-invalid={errors.managerContactNo ? true : undefined}>
+          <FieldLabel htmlFor="managerContactNo">Manager Contact Number</FieldLabel>
+          <Input
+            id="managerContactNo"
+            type="tel"
+            inputMode="numeric"
+            placeholder="10-digit mobile number"
+            aria-invalid={!!errors.managerContactNo}
+            {...register("managerContactNo")}
+          />
+          {errors.managerContactNo && (
+            <FieldDescription>{errors.managerContactNo.message}</FieldDescription>
+          )}
+        </Field>
       </FieldGroup>
+
+      {/* Floor Section */}
+      <div className="flex flex-col gap-4 rounded-lg border p-3">
+        <span className="text-sm font-medium">Floor Details</span>
+        <FieldGroup>
+          <Field data-invalid={errors.numberOfFloors ? true : undefined}>
+            <FieldLabel htmlFor="numberOfFloors">Number of Floors</FieldLabel>
+            <Input
+              id="numberOfFloors"
+              type="number"
+              inputMode="numeric"
+              min={0}
+              placeholder="0"
+              aria-invalid={!!errors.numberOfFloors}
+              {...register("numberOfFloors", { valueAsNumber: true })}
+            />
+            {errors.numberOfFloors && (
+              <FieldDescription>{errors.numberOfFloors.message}</FieldDescription>
+            )}
+          </Field>
+
+          <div className="grid grid-cols-2 gap-3">
+            <Field data-invalid={errors.terraceFloors ? true : undefined}>
+              <FieldLabel htmlFor="terraceFloors">Terrace Floors</FieldLabel>
+              <Input
+                id="terraceFloors"
+                type="number"
+                inputMode="numeric"
+                min={0}
+                placeholder="0"
+                aria-invalid={!!errors.terraceFloors}
+                {...register("terraceFloors", { valueAsNumber: true })}
+              />
+              {errors.terraceFloors && (
+                <FieldDescription>{errors.terraceFloors.message}</FieldDescription>
+              )}
+            </Field>
+
+            <Field data-invalid={errors.sheetFloors ? true : undefined}>
+              <FieldLabel htmlFor="sheetFloors">Sheet/ഓട് Floors</FieldLabel>
+              <Input
+                id="sheetFloors"
+                type="number"
+                inputMode="numeric"
+                min={0}
+                placeholder="0"
+                aria-invalid={!!errors.sheetFloors}
+                {...register("sheetFloors", { valueAsNumber: true })}
+              />
+              {errors.sheetFloors && (
+                <FieldDescription>{errors.sheetFloors.message}</FieldDescription>
+              )}
+            </Field>
+          </div>
+        </FieldGroup>
+      </div>
+
+      {/* Floor Base Section */}
+      <div className="flex flex-col gap-4 rounded-lg border p-3">
+        <span className="text-sm font-medium">Floor Base</span>
+        <FieldGroup>
+          <Field>
+            <div className="flex items-center justify-between">
+              <FieldLabel htmlFor="hasStaircase">Staircase</FieldLabel>
+              <Switch
+                id="hasStaircase"
+                checked={watch("hasStaircase")}
+                onCheckedChange={(checked) => setValue("hasStaircase", checked)}
+              />
+            </div>
+          </Field>
+
+          <Field>
+            <div className="flex items-center justify-between">
+              <FieldLabel htmlFor="hasLift">Lift</FieldLabel>
+              <Switch
+                id="hasLift"
+                checked={watch("hasLift")}
+                onCheckedChange={(checked) => setValue("hasLift", checked)}
+              />
+            </div>
+          </Field>
+
+          <Field>
+            <FieldLabel>Toilet</FieldLabel>
+            <ToggleGroup
+              type="single"
+              value={toiletStatus}
+              onValueChange={(val) => {
+                if (val) setValue("toiletStatus", val as "usable" | "unusable" | "none", { shouldValidate: true })
+              }}
+              className="justify-start"
+            >
+              {TOILET_STATUS_OPTIONS.map((opt) => (
+                <ToggleGroupItem key={opt.value} value={opt.value} className="flex-1">
+                  {opt.label}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+          </Field>
+        </FieldGroup>
+      </div>
     </div>
   )
 }

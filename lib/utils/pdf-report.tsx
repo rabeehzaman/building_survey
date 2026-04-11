@@ -8,6 +8,7 @@ import {
 } from "@react-pdf/renderer"
 import { saveAs } from "file-saver"
 import type { BuildingWithShops } from "@/lib/storage/survey-storage"
+import type { RoomDetail, WasteManagement } from "@/lib/supabase/types"
 
 const colors = {
   primary: "#18181b",
@@ -185,18 +186,42 @@ function ShopField({ label, value }: { label: string; value: string }) {
   )
 }
 
+function formatWasteForPDF(wm: WasteManagement | null): string {
+  if (!wm) return ""
+  const parts: string[] = []
+  if (wm.water) parts.push("Water")
+  if (wm.foodWaste) parts.push("Food Waste")
+  if (wm.paperWaste) parts.push("Paper Waste")
+  if (wm.plasticWaste) parts.push("Plastic Waste")
+  if (wm.otherWaste) parts.push(wm.otherWaste)
+  return parts.join(", ")
+}
+
 function BuildingPage({ building }: { building: BuildingWithShops }) {
+  const rooms = (building.rooms as RoomDetail[]) || []
+  const vacantCount = rooms.filter((r) => r.status === "vacant").length
+  const occupiedCount = rooms.filter((r) => r.status === "occupied").length
+
   const infoRows = [
-    { label: "Ward No", value: String(building.ward_no) },
-    { label: "Location", value: building.location },
+    { label: "Old Ward No", value: String(building.old_ward_no) },
+    { label: "New Ward No", value: String(building.new_ward_no) },
+    { label: "Place", value: building.place },
+    { label: "Road Name", value: building.road_name },
     { label: "Building Number", value: building.building_number },
     { label: "Owner Name", value: building.building_owner_name },
     { label: "Owner Mobile 1", value: building.owner_mob_no_1 },
     { label: "Owner Mobile 2", value: building.mob_no_2 || "" },
+    { label: "Manager Name", value: building.manager_name || "" },
+    { label: "Manager Contact", value: building.manager_contact_no || "" },
+    { label: "Floors", value: building.number_of_floors > 0 ? `${building.number_of_floors} (Terrace: ${building.terrace_floors}, Sheet: ${building.sheet_floors})` : "" },
+    { label: "Staircase", value: building.has_staircase ? "Yes" : "No" },
+    { label: "Lift", value: building.has_lift ? "Yes" : "No" },
+    { label: "Toilet", value: building.toilet_status },
     { label: "Building Status", value: building.building_status.toUpperCase() },
     ...(building.building_status === "vacant"
       ? [{ label: "Vacancy Period", value: building.vacancy_period || "" }]
       : []),
+    { label: "Total Rooms", value: building.total_rooms > 0 ? `${building.total_rooms} (Occupied: ${occupiedCount}, Vacant: ${vacantCount})` : "" },
     ...(building.latitude && building.longitude
       ? [{ label: "GPS Coordinates", value: `${Number(building.latitude).toFixed(6)}, ${Number(building.longitude).toFixed(6)}` }]
       : []),
@@ -265,16 +290,23 @@ function BuildingPage({ building }: { building: BuildingWithShops }) {
                 </Text>
               </View>
               <View style={styles.shopGrid}>
-                <ShopField label="Licence No" value={shop.shop_licence_no} />
+                {shop.shop_category && (
+                  <ShopField label="Category" value={shop.shop_category} />
+                )}
                 <ShopField label="Room Number" value={shop.room_number} />
-                <ShopField
-                  label="Licensee Name"
-                  value={shop.shop_licensee_name}
-                />
-                <ShopField
-                  label="Licensee Contact"
-                  value={shop.licensee_contact_no}
-                />
+                <ShopField label="License" value={shop.has_license ? "Yes" : "No"} />
+                {shop.has_license ? (
+                  <>
+                    <ShopField label="Licence No" value={shop.shop_licence_no || ""} />
+                    <ShopField label="Licensee Name" value={shop.shop_licensee_name || ""} />
+                    <ShopField label="Licensee Contact" value={shop.licensee_contact_no || ""} />
+                  </>
+                ) : (
+                  <>
+                    <ShopField label="Owner Name" value={shop.owner_name || ""} />
+                    <ShopField label="Owner Contact" value={shop.owner_contact_no || ""} />
+                  </>
+                )}
                 <ShopField
                   label="Managing Person"
                   value={shop.shop_managing_person}
@@ -288,12 +320,8 @@ function BuildingPage({ building }: { building: BuildingWithShops }) {
                   value={shop.connected_room || ""}
                 />
                 <ShopField
-                  label="Ward Number"
-                  value={String(shop.ward_number)}
-                />
-                <ShopField
-                  label="Location (Municipality)"
-                  value={shop.location_name}
+                  label="Waste Management"
+                  value={formatWasteForPDF(shop.waste_management as WasteManagement | null)}
                 />
               </View>
             </View>
@@ -343,7 +371,7 @@ export async function exportSinglePDF(building: BuildingWithShops) {
   const pdfBlob = new Blob([rawBlob], { type: "application/pdf" })
   saveAs(
     pdfBlob,
-    `Building_${building.building_number}_Ward${building.ward_no}.pdf`
+    `Building_${building.building_number}_Ward${building.new_ward_no}.pdf`
   )
 }
 

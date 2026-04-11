@@ -102,19 +102,21 @@ function EntriesContent() {
     }
   }
 
-  const wardNumbers = [...new Set(buildings.map((b) => b.ward_no))].sort(
+  const wardNumbers = [...new Set(buildings.map((b) => b.new_ward_no))].sort(
     (a, b) => a - b
   )
 
   const filtered = buildings.filter((b) => {
-    if (wardFilter !== "all" && String(b.ward_no) !== wardFilter) return false
+    if (wardFilter !== "all" && String(b.new_ward_no) !== wardFilter) return false
     if (!search) return true
     const q = search.toLowerCase()
     return (
       b.building_owner_name.toLowerCase().includes(q) ||
-      b.location.toLowerCase().includes(q) ||
+      b.place.toLowerCase().includes(q) ||
+      b.road_name.toLowerCase().includes(q) ||
       b.building_number.toLowerCase().includes(q) ||
-      String(b.ward_no).includes(q)
+      String(b.old_ward_no).includes(q) ||
+      String(b.new_ward_no).includes(q)
     )
   })
 
@@ -176,7 +178,7 @@ function EntriesContent() {
       <InputGroup>
         <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
         <InputGroupInput
-          placeholder="Search by name, location, ward..."
+          placeholder="Search by name, place, ward..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="pl-10"
@@ -249,8 +251,8 @@ function EntriesContent() {
                     {building.building_owner_name}
                   </span>
                   <span className="text-sm text-muted-foreground">
-                    Ward {building.ward_no} &middot; #{building.building_number}{" "}
-                    &middot; {building.location}
+                    Ward {building.new_ward_no} &middot; #{building.building_number}{" "}
+                    &middot; {building.place}
                   </span>
                   <div className="flex items-center gap-2">
                     <Badge

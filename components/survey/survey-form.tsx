@@ -36,15 +36,27 @@ interface SurveyFormProps {
 export type GpsStatus = "capturing" | "captured" | "failed" | "unsupported"
 
 const defaultFormValues: BuildingSurvey = {
-  wardNo: "",
-  location: "",
+  oldWardNo: "",
+  newWardNo: "",
+  place: "",
+  roadName: "",
   buildingNumber: "",
   buildingOwnerName: "",
   ownerMobNo1: "",
   ownerMobNo2: "",
+  managerName: "",
+  managerContactNo: "",
+  numberOfFloors: 0,
+  terraceFloors: 0,
+  sheetFloors: 0,
+  hasStaircase: false,
+  hasLift: false,
+  toiletStatus: "none",
   buildingStatus: "working",
   vacancyPeriod: "",
   hasShops: false,
+  totalRooms: 0,
+  rooms: [],
   latitude: null,
   longitude: null,
   photos: [],
@@ -58,7 +70,7 @@ export function SurveyForm({ defaultValues, editId }: SurveyFormProps) {
   const [pendingPhotos, setPendingPhotos] = useState<File[]>([])
 
   const form = useForm<BuildingSurvey>({
-    resolver: zodResolver(buildingSurveySchema),
+    resolver: zodResolver(buildingSurveySchema) as any,
     defaultValues: defaultValues || defaultFormValues,
     mode: "onTouched",
   })
@@ -107,14 +119,17 @@ export function SurveyForm({ defaultValues, editId }: SurveyFormProps) {
         })
         return false
       }
-      // Also trigger RHF validation for the fields
       return await form.trigger([
-        "wardNo",
-        "location",
+        "oldWardNo",
+        "newWardNo",
+        "place",
+        "roadName",
         "buildingNumber",
         "buildingOwnerName",
         "ownerMobNo1",
         "ownerMobNo2",
+        "managerName",
+        "managerContactNo",
       ])
     }
 
@@ -131,16 +146,25 @@ export function SurveyForm({ defaultValues, editId }: SurveyFormProps) {
       if (values.hasShops && (!values.shops || values.shops.length === 0)) {
         form.setValue("shops", [
           {
-            shopDetails: "",
+            shopName: "",
+            shopCategory: "",
+            hasLicense: true,
             shopLicenceNo: "",
             shopLicenseeName: "",
             licenseeContactNo: "",
+            ownerName: "",
+            ownerContactNo: "",
             shopManagingPerson: "",
             managingPersonContactNo: "",
             connectedRoom: "",
-            wardNumber: values.wardNo,
             roomNumber: "",
-            locationName: "",
+            wasteManagement: {
+              water: false,
+              foodWaste: false,
+              paperWaste: false,
+              plasticWaste: false,
+              otherWaste: "",
+            },
           },
         ])
       }
@@ -183,13 +207,13 @@ export function SurveyForm({ defaultValues, editId }: SurveyFormProps) {
     // Duplicate detection (warning only)
     try {
       const { isDuplicate, ownerName } = await checkDuplicate(
-        Number(values.wardNo),
+        Number(values.oldWardNo),
         values.buildingNumber,
         editId
       )
       if (isDuplicate) {
         const proceed = window.confirm(
-          `Warning: Building #${values.buildingNumber} already exists in Ward ${values.wardNo} (Owner: ${ownerName}). Do you still want to save?`
+          `Warning: Building #${values.buildingNumber} already exists in Ward ${values.oldWardNo} (Owner: ${ownerName}). Do you still want to save?`
         )
         if (!proceed) return
       }

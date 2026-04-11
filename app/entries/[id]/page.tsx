@@ -21,6 +21,7 @@ import {
   getBuildingById,
   type BuildingWithShops,
 } from "@/lib/storage/survey-storage"
+import type { RoomDetail, WasteManagement } from "@/lib/supabase/types"
 
 function DetailRow({ label, value }: { label: string; value: string }) {
   if (!value) return null
@@ -72,6 +73,10 @@ export default function EntryDetailPage() {
 
   if (!building) return null
 
+  const rooms = (building.rooms as RoomDetail[]) || []
+  const vacantRooms = rooms.filter((r) => r.status === "vacant").length
+  const occupiedRooms = rooms.filter((r) => r.status === "occupied").length
+
   return (
     <div className="flex flex-col gap-4">
       {/* Header */}
@@ -116,18 +121,21 @@ export default function EntryDetailPage() {
             </Badge>
           </div>
           <CardDescription>
-            Ward {building.ward_no} &middot; Building #{building.building_number}
+            Old Ward {building.old_ward_no} / New Ward {building.new_ward_no} &middot; Building #{building.building_number}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 gap-4">
-            <DetailRow label="Location" value={building.location} />
+            <DetailRow label="Place" value={building.place} />
+            <DetailRow label="Road Name" value={building.road_name} />
             <DetailRow
               label="Building Number"
               value={building.building_number}
             />
             <DetailRow label="Mobile No 1" value={building.owner_mob_no_1} />
             <DetailRow label="Mobile No 2" value={building.mob_no_2 || ""} />
+            <DetailRow label="Manager Name" value={building.manager_name || ""} />
+            <DetailRow label="Manager Contact" value={building.manager_contact_no || ""} />
             {building.building_status === "vacant" && (
               <DetailRow
                 label="Vacancy Period"
@@ -135,6 +143,78 @@ export default function EntryDetailPage() {
               />
             )}
           </div>
+
+          {/* Floor Details */}
+          {building.number_of_floors > 0 && (
+            <div className="mt-4 rounded-lg border p-3">
+              <span className="text-xs font-medium text-muted-foreground">Floor Details</span>
+              <div className="mt-2 grid grid-cols-3 gap-2 text-center">
+                <div>
+                  <span className="text-lg font-semibold">{building.number_of_floors}</span>
+                  <p className="text-xs text-muted-foreground">Total Floors</p>
+                </div>
+                <div>
+                  <span className="text-lg font-semibold">{building.terrace_floors}</span>
+                  <p className="text-xs text-muted-foreground">Terrace</p>
+                </div>
+                <div>
+                  <span className="text-lg font-semibold">{building.sheet_floors}</span>
+                  <p className="text-xs text-muted-foreground">Sheet/ഓട്</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Floor Base */}
+          <div className="mt-4 rounded-lg border p-3">
+            <span className="text-xs font-medium text-muted-foreground">Floor Base</span>
+            <div className="mt-2 flex gap-3">
+              <Badge variant={building.has_staircase ? "secondary" : "outline"}>
+                Staircase: {building.has_staircase ? "Yes" : "No"}
+              </Badge>
+              <Badge variant={building.has_lift ? "secondary" : "outline"}>
+                Lift: {building.has_lift ? "Yes" : "No"}
+              </Badge>
+              <Badge variant="outline">
+                Toilet: {building.toilet_status}
+              </Badge>
+            </div>
+          </div>
+
+          {/* Room Summary */}
+          {building.total_rooms > 0 && (
+            <div className="mt-4 rounded-lg border p-3">
+              <span className="text-xs font-medium text-muted-foreground">Room Summary</span>
+              <div className="mt-2 grid grid-cols-3 gap-2 text-center">
+                <div>
+                  <span className="text-lg font-semibold">{building.total_rooms}</span>
+                  <p className="text-xs text-muted-foreground">Total</p>
+                </div>
+                <div>
+                  <span className="text-lg font-semibold text-green-600">{occupiedRooms}</span>
+                  <p className="text-xs text-muted-foreground">Occupied</p>
+                </div>
+                <div>
+                  <span className="text-lg font-semibold text-orange-600">{vacantRooms}</span>
+                  <p className="text-xs text-muted-foreground">Vacant</p>
+                </div>
+              </div>
+              {rooms.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-1">
+                  {rooms.map((room, i) => (
+                    <Badge
+                      key={i}
+                      variant={room.status === "occupied" ? "secondary" : "outline"}
+                      className="text-xs"
+                    >
+                      #{room.roomNumber} - {room.status}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           {building.latitude && building.longitude && (
             <div className="mt-4 flex items-center gap-2 rounded-lg border p-3">
               <MapPinIcon className="shrink-0 text-muted-foreground" />
@@ -186,48 +266,73 @@ export default function EntryDetailPage() {
             <StoreIcon className="text-muted-foreground" />
             Shops ({building.shops.length})
           </h2>
-          {building.shops.map((shop, index) => (
-            <Card key={shop.id}>
-              <CardHeader>
-                <CardTitle className="text-base">Shop {index + 1}</CardTitle>
-                <CardDescription>{shop.shop_details}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-4">
-                  <DetailRow label="Licence No" value={shop.shop_licence_no} />
-                  <DetailRow label="Room Number" value={shop.room_number} />
-                  <DetailRow
-                    label="Licensee Name"
-                    value={shop.shop_licensee_name}
-                  />
-                  <DetailRow
-                    label="Licensee Contact"
-                    value={shop.licensee_contact_no}
-                  />
-                  <DetailRow
-                    label="Managing Person"
-                    value={shop.shop_managing_person}
-                  />
-                  <DetailRow
-                    label="Manager Contact"
-                    value={shop.managing_person_contact_no}
-                  />
-                  <DetailRow
-                    label="Connected Room"
-                    value={shop.connected_room || ""}
-                  />
-                  <DetailRow
-                    label="Ward Number"
-                    value={String(shop.ward_number)}
-                  />
-                  <DetailRow
-                    label="Location (Municipality)"
-                    value={shop.location_name}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+          {building.shops.map((shop, index) => {
+            const waste = shop.waste_management as WasteManagement | null
+            return (
+              <Card key={shop.id}>
+                <CardHeader>
+                  <CardTitle className="text-base">Shop {index + 1}</CardTitle>
+                  <CardDescription>{shop.shop_details}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-4">
+                    {shop.shop_category && (
+                      <DetailRow label="Category" value={shop.shop_category} />
+                    )}
+                    <DetailRow label="Room Number" value={shop.room_number} />
+                    <DetailRow
+                      label="License"
+                      value={shop.has_license ? "Yes" : "No"}
+                    />
+                    {shop.has_license ? (
+                      <>
+                        <DetailRow label="Licence No" value={shop.shop_licence_no || ""} />
+                        <DetailRow
+                          label="Licensee Name"
+                          value={shop.shop_licensee_name || ""}
+                        />
+                        <DetailRow
+                          label="Licensee Contact"
+                          value={shop.licensee_contact_no || ""}
+                        />
+                      </>
+                    ) : (
+                      <>
+                        <DetailRow label="Owner Name" value={shop.owner_name || ""} />
+                        <DetailRow label="Owner Contact" value={shop.owner_contact_no || ""} />
+                      </>
+                    )}
+                    <DetailRow
+                      label="Managing Person"
+                      value={shop.shop_managing_person}
+                    />
+                    <DetailRow
+                      label="Manager Contact"
+                      value={shop.managing_person_contact_no}
+                    />
+                    <DetailRow
+                      label="Connected Room"
+                      value={shop.connected_room || ""}
+                    />
+                  </div>
+                  {waste && (
+                    <div className="mt-3 rounded-lg border p-2">
+                      <span className="text-xs font-medium text-muted-foreground">
+                        Waste Management
+                      </span>
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        {waste.water && <Badge variant="secondary" className="text-xs">Water</Badge>}
+                        {waste.foodWaste && <Badge variant="secondary" className="text-xs">Food Waste</Badge>}
+                        {waste.paperWaste && <Badge variant="secondary" className="text-xs">Paper Waste</Badge>}
+                        {waste.plasticWaste && <Badge variant="secondary" className="text-xs">Plastic Waste</Badge>}
+                        {waste.otherWaste && <Badge variant="outline" className="text-xs">{waste.otherWaste}</Badge>}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )
+          })}
         </div>
       )}
 
