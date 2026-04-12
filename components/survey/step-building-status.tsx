@@ -448,9 +448,8 @@ export function StepBuildingStatus({ form }: StepBuildingStatusProps) {
               </FieldLabel>
               <Input
                 id={`${prefix}.harithaKarmaSenaNumber`}
-                type="tel"
                 inputMode="numeric"
-                placeholder="Contact number"
+                placeholder="Enter number"
                 {...register(`shops.${shopIdx}.harithaKarmaSenaNumber`)}
               />
             </Field>
@@ -571,44 +570,53 @@ export function StepBuildingStatus({ form }: StepBuildingStatusProps) {
 
                 return (
                   <div key={index} className="rounded-lg border">
-                    <div className="flex items-center gap-3 p-2">
-                      <Input
-                        className="w-20 text-center"
-                        value={room.roomNumber}
-                        onChange={(e) => handleRoomNumberChange(index, e.target.value)}
-                        placeholder="No."
-                      />
-                      <ToggleGroup
-                        type="single"
-                        value={room.status}
-                        onValueChange={(val) => {
-                          if (val) handleRoomStatusChange(index, val as "vacant" | "occupied")
-                        }}
-                        className="flex-1"
-                      >
-                        <ToggleGroupItem value="occupied" className="flex-1 text-xs">
-                          Occupied
-                        </ToggleGroupItem>
-                        <ToggleGroupItem value="vacant" className="flex-1 text-xs">
-                          Vacant
-                        </ToggleGroupItem>
-                      </ToggleGroup>
-                      <Button
-                        type="button"
-                        variant={hasDetails ? "secondary" : "outline"}
-                        size="sm"
-                        onClick={() => toggleRoomExpand(index)}
-                        className="shrink-0 text-xs"
-                      >
-                        {isExpanded ? (
-                          <ChevronUpIcon className="size-3.5" />
-                        ) : (
-                          <PlusIcon className="size-3.5" />
-                        )}
-                        {isExpanded ? "Hide" : hasDetails ? "Edit" : "Add Details"}
-                      </Button>
+                    <div className="flex flex-col gap-2 p-2">
+                      <div className="flex items-center gap-3">
+                        <div className="flex flex-col gap-1">
+                          <span className="text-xs font-medium text-muted-foreground">Room No.</span>
+                          <Input
+                            className="w-24 text-center"
+                            value={room.roomNumber}
+                            onChange={(e) => handleRoomNumberChange(index, e.target.value)}
+                            placeholder="Room No."
+                          />
+                        </div>
+                        <div className="flex flex-1 flex-col gap-1">
+                          <span className="text-xs font-medium text-muted-foreground">Status</span>
+                          <ToggleGroup
+                            type="single"
+                            value={room.status}
+                            onValueChange={(val) => {
+                              if (val) handleRoomStatusChange(index, val as "vacant" | "occupied")
+                            }}
+                          >
+                            <ToggleGroupItem value="occupied" className="flex-1 text-xs">
+                              Occupied
+                            </ToggleGroupItem>
+                            <ToggleGroupItem value="vacant" className="flex-1 text-xs">
+                              Vacant
+                            </ToggleGroupItem>
+                          </ToggleGroup>
+                        </div>
+                      </div>
+                      {room.status === "occupied" && (
+                        <Button
+                          type="button"
+                          variant={hasDetails ? "secondary" : "outline"}
+                          size="sm"
+                          onClick={() => toggleRoomExpand(index)}
+                          className="w-full text-xs"
+                        >
+                          {isExpanded ? (
+                            <ChevronUpIcon className="size-3.5" />
+                          ) : (
+                            <PlusIcon className="size-3.5" />
+                          )}
+                          {isExpanded ? "Hide" : hasDetails ? "Edit" : "Add Details"}
+                        </Button>
+                      )}
                     </div>
-                    {isExpanded && renderShopFields(index)}
+                    {isExpanded && room.status === "occupied" && renderShopFields(index)}
                   </div>
                 )
               })}

@@ -13,6 +13,11 @@ const optionalPhoneSchema = z
 export const floorDetailSchema = z.object({
   floorNumber: z.number().min(1),
   roofType: z.enum(["terrace", "sheet"]),
+  staircaseCount: z.coerce.number().min(0, "Must be 0 or more"),
+  liftCount: z.coerce.number().min(0, "Must be 0 or more"),
+  totalToilets: z.coerce.number().min(0, "Must be 0 or more"),
+  usableToilets: z.coerce.number().min(0, "Must be 0 or more"),
+  unusableToilets: z.coerce.number().min(0, "Must be 0 or more"),
 })
 
 export const roomDetailSchema = z.object({
@@ -107,13 +112,6 @@ export const buildingSurveySchema = z
     // Floor details
     numberOfFloors: z.coerce.number().min(0, "Must be 0 or more"),
     floors: z.array(floorDetailSchema),
-
-    // Floor base
-    staircaseCount: z.coerce.number().min(0, "Must be 0 or more"),
-    liftCount: z.coerce.number().min(0, "Must be 0 or more"),
-    totalToilets: z.coerce.number().min(0, "Must be 0 or more"),
-    usableToilets: z.coerce.number().min(0, "Must be 0 or more"),
-    unusableToilets: z.coerce.number().min(0, "Must be 0 or more"),
 
     // Step 2: Building Status
     buildingStatus: z.enum(["working", "vacant"]),

@@ -1,6 +1,11 @@
 export type FloorDetail = {
   floorNumber: number
   roofType: "terrace" | "sheet"
+  staircaseCount: number
+  liftCount: number
+  totalToilets: number
+  usableToilets: number
+  unusableToilets: number
 }
 
 export type RoomDetail = {

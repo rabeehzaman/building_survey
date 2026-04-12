@@ -144,44 +144,42 @@ export default function EntryDetailPage() {
             )}
           </div>
 
-          {/* Floor Details */}
+          {/* Floor Details with Per-Floor Base */}
           {building.number_of_floors > 0 && (
-            <div className="mt-4 rounded-lg border p-3">
+            <div className="mt-4 flex flex-col gap-2">
               <span className="text-xs font-medium text-muted-foreground">Floor Details ({building.number_of_floors} floors)</span>
-              <div className="mt-2 flex flex-wrap gap-1">
-                {((building.floors as FloorDetail[]) || []).map((f, i) => (
-                  <Badge key={i} variant={f.roofType === "terrace" ? "secondary" : "outline"} className="text-xs">
-                    Floor {f.floorNumber}: {f.roofType === "terrace" ? "Terrace" : "Sheet/ഓട്"}
-                  </Badge>
-                ))}
-              </div>
+              {((building.floors as any[]) || []).map((f: any, i: number) => (
+                <div key={i} className="rounded-lg border p-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium">Floor {f.floorNumber}</span>
+                    <Badge variant={f.roofType === "terrace" ? "secondary" : "outline"} className="text-xs">
+                      {f.roofType === "terrace" ? "Terrace" : "Sheet/ഓട്"}
+                    </Badge>
+                  </div>
+                  <div className="mt-2 grid grid-cols-3 gap-2 text-center">
+                    <div>
+                      <span className="text-lg font-semibold">{f.staircaseCount ?? 0}</span>
+                      <p className="text-xs text-muted-foreground">Staircase</p>
+                    </div>
+                    <div>
+                      <span className="text-lg font-semibold">{f.liftCount ?? 0}</span>
+                      <p className="text-xs text-muted-foreground">Lift</p>
+                    </div>
+                    <div>
+                      <span className="text-lg font-semibold">{f.totalToilets ?? 0}</span>
+                      <p className="text-xs text-muted-foreground">Toilets</p>
+                    </div>
+                  </div>
+                  {(f.totalToilets ?? 0) > 0 && (
+                    <div className="mt-2 flex justify-center gap-3">
+                      <Badge variant="secondary" className="text-xs">Usable: {f.usableToilets ?? 0}</Badge>
+                      <Badge variant="outline" className="text-xs">Unusable: {f.unusableToilets ?? 0}</Badge>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           )}
-
-          {/* Floor Base */}
-          <div className="mt-4 rounded-lg border p-3">
-            <span className="text-xs font-medium text-muted-foreground">Floor Base</span>
-            <div className="mt-2 grid grid-cols-3 gap-2 text-center">
-              <div>
-                <span className="text-lg font-semibold">{building.staircase_count}</span>
-                <p className="text-xs text-muted-foreground">Staircase</p>
-              </div>
-              <div>
-                <span className="text-lg font-semibold">{building.lift_count}</span>
-                <p className="text-xs text-muted-foreground">Lift</p>
-              </div>
-              <div>
-                <span className="text-lg font-semibold">{building.total_toilets}</span>
-                <p className="text-xs text-muted-foreground">Toilets</p>
-              </div>
-            </div>
-            {building.total_toilets > 0 && (
-              <div className="mt-2 flex justify-center gap-3">
-                <Badge variant="secondary" className="text-xs">Usable: {building.usable_toilets}</Badge>
-                <Badge variant="outline" className="text-xs">Unusable: {building.unusable_toilets}</Badge>
-              </div>
-            )}
-          </div>
 
           {/* Room Summary */}
           {building.total_rooms > 0 && (

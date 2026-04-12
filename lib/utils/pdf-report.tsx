@@ -213,10 +213,10 @@ function BuildingPage({ building }: { building: BuildingWithShops }) {
     { label: "Owner Mobile 2", value: building.mob_no_2 || "" },
     { label: "Manager Name", value: building.manager_name || "" },
     { label: "Manager Contact", value: building.manager_contact_no || "" },
-    { label: "Floors", value: building.number_of_floors > 0 ? ((building.floors as FloorDetail[]) || []).map(f => `Floor ${f.floorNumber}: ${f.roofType}`).join(", ") : "" },
-    { label: "Staircase", value: building.staircase_count > 0 ? String(building.staircase_count) : "" },
-    { label: "Lift", value: building.lift_count > 0 ? String(building.lift_count) : "" },
-    { label: "Toilets", value: building.total_toilets > 0 ? `${building.total_toilets} (Usable: ${building.usable_toilets}, Unusable: ${building.unusable_toilets})` : "" },
+    ...((building.floors as any[]) || []).map((f: any) => ({
+      label: `Floor ${f.floorNumber}`,
+      value: `${f.roofType === "terrace" ? "Terrace" : "Sheet"} | Staircase: ${f.staircaseCount ?? 0} | Lift: ${f.liftCount ?? 0} | Toilets: ${f.totalToilets ?? 0} (Usable: ${f.usableToilets ?? 0}, Unusable: ${f.unusableToilets ?? 0})`,
+    })),
     { label: "Building Status", value: building.building_status.toUpperCase() },
     ...(building.building_status === "vacant"
       ? [{ label: "Vacancy Period", value: building.vacancy_period || "" }]

@@ -466,6 +466,11 @@ export function StepBuildingInfo({ form, gpsStatus, onRetryGps, pendingPhotos, s
                     ...Array.from({ length: count - current.length }, (_, i) => ({
                       floorNumber: current.length + i + 1,
                       roofType: "terrace" as const,
+                      staircaseCount: 0,
+                      liftCount: 0,
+                      totalToilets: 0,
+                      usableToilets: 0,
+                      unusableToilets: 0,
                     })),
                   ]
                 } else {
@@ -483,124 +488,124 @@ export function StepBuildingInfo({ form, gpsStatus, onRetryGps, pendingPhotos, s
 
         {/* Dynamic floor list */}
         {(watch("floors") || []).length > 0 && (
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-3">
             {(watch("floors") || []).map((floor, index) => (
-              <div key={index} className="flex items-center gap-3 rounded-lg border p-2">
-                <span className="w-16 text-sm font-medium">Floor {floor.floorNumber}</span>
-                <ToggleGroup
-                  type="single"
-                  value={floor.roofType}
-                  onValueChange={(val) => {
-                    if (val) {
+              <div key={index} className="flex flex-col gap-3 rounded-lg border p-3">
+                <div className="flex items-center gap-3">
+                  <span className="w-16 text-sm font-medium">Floor {floor.floorNumber}</span>
+                  <ToggleGroup
+                    type="single"
+                    value={floor.roofType}
+                    onValueChange={(val) => {
+                      if (val) {
+                        const current = form.getValues("floors") || []
+                        const updated = [...current]
+                        updated[index] = { ...updated[index], roofType: val as "terrace" | "sheet" }
+                        setValue("floors", updated)
+                      }
+                    }}
+                    className="flex-1"
+                  >
+                    <ToggleGroupItem value="terrace" className="flex-1 text-xs">
+                      Terrace
+                    </ToggleGroupItem>
+                    <ToggleGroupItem value="sheet" className="flex-1 text-xs">
+                      Sheet/ഓട്
+                    </ToggleGroupItem>
+                  </ToggleGroup>
+                </div>
+
+                {/* Per-floor base fields */}
+                <div className="grid grid-cols-2 gap-3">
+                  <Field>
+                    <FieldLabel>Staircase</FieldLabel>
+                    <Input
+                      type="number"
+                      inputMode="numeric"
+                      min={0}
+                      placeholder="0"
+                      value={floor.staircaseCount ?? 0}
+                      onChange={(e) => {
+                        const current = form.getValues("floors") || []
+                        const updated = [...current]
+                        updated[index] = { ...updated[index], staircaseCount: parseInt(e.target.value) || 0 }
+                        setValue("floors", updated)
+                      }}
+                    />
+                  </Field>
+                  <Field>
+                    <FieldLabel>Lift</FieldLabel>
+                    <Input
+                      type="number"
+                      inputMode="numeric"
+                      min={0}
+                      placeholder="0"
+                      value={floor.liftCount ?? 0}
+                      onChange={(e) => {
+                        const current = form.getValues("floors") || []
+                        const updated = [...current]
+                        updated[index] = { ...updated[index], liftCount: parseInt(e.target.value) || 0 }
+                        setValue("floors", updated)
+                      }}
+                    />
+                  </Field>
+                </div>
+
+                <Field>
+                  <FieldLabel>Total Toilets</FieldLabel>
+                  <Input
+                    type="number"
+                    inputMode="numeric"
+                    min={0}
+                    placeholder="0"
+                    value={floor.totalToilets ?? 0}
+                    onChange={(e) => {
                       const current = form.getValues("floors") || []
                       const updated = [...current]
-                      updated[index] = { ...updated[index], roofType: val as "terrace" | "sheet" }
+                      updated[index] = { ...updated[index], totalToilets: parseInt(e.target.value) || 0 }
                       setValue("floors", updated)
-                    }
-                  }}
-                  className="flex-1"
-                >
-                  <ToggleGroupItem value="terrace" className="flex-1 text-xs">
-                    Terrace
-                  </ToggleGroupItem>
-                  <ToggleGroupItem value="sheet" className="flex-1 text-xs">
-                    Sheet/ഓട്
-                  </ToggleGroupItem>
-                </ToggleGroup>
+                    }}
+                  />
+                </Field>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <Field>
+                    <FieldLabel>Usable</FieldLabel>
+                    <Input
+                      type="number"
+                      inputMode="numeric"
+                      min={0}
+                      placeholder="0"
+                      value={floor.usableToilets ?? 0}
+                      onChange={(e) => {
+                        const current = form.getValues("floors") || []
+                        const updated = [...current]
+                        updated[index] = { ...updated[index], usableToilets: parseInt(e.target.value) || 0 }
+                        setValue("floors", updated)
+                      }}
+                    />
+                  </Field>
+                  <Field>
+                    <FieldLabel>Unusable</FieldLabel>
+                    <Input
+                      type="number"
+                      inputMode="numeric"
+                      min={0}
+                      placeholder="0"
+                      value={floor.unusableToilets ?? 0}
+                      onChange={(e) => {
+                        const current = form.getValues("floors") || []
+                        const updated = [...current]
+                        updated[index] = { ...updated[index], unusableToilets: parseInt(e.target.value) || 0 }
+                        setValue("floors", updated)
+                      }}
+                    />
+                  </Field>
+                </div>
               </div>
             ))}
           </div>
         )}
-      </div>
-
-      {/* Floor Base Section */}
-      <div className="flex flex-col gap-4 rounded-lg border p-3">
-        <span className="text-sm font-medium">Floor Base</span>
-        <FieldGroup>
-          <div className="grid grid-cols-2 gap-3">
-            <Field data-invalid={errors.staircaseCount ? true : undefined}>
-              <FieldLabel htmlFor="staircaseCount">Staircase</FieldLabel>
-              <Input
-                id="staircaseCount"
-                type="number"
-                inputMode="numeric"
-                min={0}
-                placeholder="0"
-                aria-invalid={!!errors.staircaseCount}
-                {...register("staircaseCount", { valueAsNumber: true })}
-              />
-              {errors.staircaseCount && (
-                <FieldDescription>{errors.staircaseCount.message}</FieldDescription>
-              )}
-            </Field>
-
-            <Field data-invalid={errors.liftCount ? true : undefined}>
-              <FieldLabel htmlFor="liftCount">Lift</FieldLabel>
-              <Input
-                id="liftCount"
-                type="number"
-                inputMode="numeric"
-                min={0}
-                placeholder="0"
-                aria-invalid={!!errors.liftCount}
-                {...register("liftCount", { valueAsNumber: true })}
-              />
-              {errors.liftCount && (
-                <FieldDescription>{errors.liftCount.message}</FieldDescription>
-              )}
-            </Field>
-          </div>
-
-          <Field data-invalid={errors.totalToilets ? true : undefined}>
-            <FieldLabel htmlFor="totalToilets">Total Toilets</FieldLabel>
-            <Input
-              id="totalToilets"
-              type="number"
-              inputMode="numeric"
-              min={0}
-              placeholder="0"
-              aria-invalid={!!errors.totalToilets}
-              {...register("totalToilets", { valueAsNumber: true })}
-            />
-            {errors.totalToilets && (
-              <FieldDescription>{errors.totalToilets.message}</FieldDescription>
-            )}
-          </Field>
-
-          <div className="grid grid-cols-2 gap-3">
-            <Field data-invalid={errors.usableToilets ? true : undefined}>
-              <FieldLabel htmlFor="usableToilets">Usable</FieldLabel>
-              <Input
-                id="usableToilets"
-                type="number"
-                inputMode="numeric"
-                min={0}
-                placeholder="0"
-                aria-invalid={!!errors.usableToilets}
-                {...register("usableToilets", { valueAsNumber: true })}
-              />
-              {errors.usableToilets && (
-                <FieldDescription>{errors.usableToilets.message}</FieldDescription>
-              )}
-            </Field>
-
-            <Field data-invalid={errors.unusableToilets ? true : undefined}>
-              <FieldLabel htmlFor="unusableToilets">Unusable</FieldLabel>
-              <Input
-                id="unusableToilets"
-                type="number"
-                inputMode="numeric"
-                min={0}
-                placeholder="0"
-                aria-invalid={!!errors.unusableToilets}
-                {...register("unusableToilets", { valueAsNumber: true })}
-              />
-              {errors.unusableToilets && (
-                <FieldDescription>{errors.unusableToilets.message}</FieldDescription>
-              )}
-            </Field>
-          </div>
-        </FieldGroup>
       </div>
     </div>
   )
