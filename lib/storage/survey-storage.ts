@@ -157,6 +157,9 @@ export async function createBuilding(
       latitude: survey.latitude ?? null,
       longitude: survey.longitude ?? null,
       photos: survey.photos ?? [],
+      ifteo_license: survey.ifteoLicense ?? null,
+      ifteo_validity: survey.ifteoLicense ? survey.ifteoValidity || null : null,
+      which_trade: survey.ifteoLicense ? survey.whichTrade || null : null,
     })
     .select("id")
     .single()
@@ -234,6 +237,9 @@ export async function updateBuilding(
       latitude: survey.latitude ?? null,
       longitude: survey.longitude ?? null,
       photos: survey.photos ?? [],
+      ifteo_license: survey.ifteoLicense ?? null,
+      ifteo_validity: survey.ifteoLicense ? survey.ifteoValidity || null : null,
+      which_trade: survey.ifteoLicense ? survey.whichTrade || null : null,
     })
     .eq("id", id)
 
@@ -328,6 +334,9 @@ export function buildingToFormData(building: BuildingWithShops): BuildingSurvey 
     latitude: building.latitude,
     longitude: building.longitude,
     photos: building.photos ?? [],
+    ifteoLicense: (building as any).ifteo_license ?? undefined,
+    ifteoValidity: (building as any).ifteo_validity || "",
+    whichTrade: (building as any).which_trade || "",
     shops: building.shops.map((shop) => ({
       shopName: shop.shop_details,
       shopCategory: shop.shop_category || "",

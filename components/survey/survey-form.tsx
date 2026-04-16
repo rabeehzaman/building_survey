@@ -12,11 +12,13 @@ import { Progress } from "@/components/ui/progress"
 import { Spinner } from "@/components/ui/spinner"
 import { StepBuildingInfo } from "./step-building-info"
 import { StepBuildingStatus } from "./step-building-status"
+import { StepIfteoLicense } from "./step-ifteos-license"
 import { useMultiStepForm } from "@/hooks/use-multi-step-form"
 import {
   buildingSurveySchema,
   step1Schema,
   step2Schema,
+  step3Schema,
   type BuildingSurvey,
 } from "@/lib/schemas/building-survey"
 import {
@@ -55,6 +57,9 @@ const defaultFormValues: BuildingSurvey = {
   longitude: null,
   photos: [],
   shops: [],
+  ifteoLicense: undefined,
+  ifteoValidity: "",
+  whichTrade: "",
 }
 
 export function SurveyForm({ defaultValues, editId }: SurveyFormProps) {
@@ -92,11 +97,11 @@ export function SurveyForm({ defaultValues, editId }: SurveyFormProps) {
     else setGpsStatus("unsupported")
   }, [editId, defaultValues, captureGps])
 
-  const totalSteps = 2
+  const totalSteps = 3
   const { currentStep, goNext, goPrev, isFirstStep, isLastStep, progress } =
     useMultiStepForm(totalSteps)
 
-  const stepLabels = ["Building Info", "Status & Rooms"]
+  const stepLabels = ["Building Info", "Status & Rooms", "IFTEOS License"]
 
   async function validateCurrentStep(): Promise<boolean> {
     const values = form.getValues()
@@ -126,6 +131,18 @@ export function SurveyForm({ defaultValues, editId }: SurveyFormProps) {
 
     if (currentStep === 1) {
       const result = step2Schema.safeParse(values)
+      if (!result.success) {
+        result.error.issues.forEach((issue) => {
+          const path = issue.path[0] as keyof BuildingSurvey
+          form.setError(path, { message: issue.message })
+        })
+        return false
+      }
+      return true
+    }
+
+    if (currentStep === 2) {
+      const result = step3Schema.safeParse(values)
       if (!result.success) {
         result.error.issues.forEach((issue) => {
           const path = issue.path[0] as keyof BuildingSurvey
@@ -220,6 +237,7 @@ export function SurveyForm({ defaultValues, editId }: SurveyFormProps) {
       <form onSubmit={(e) => e.preventDefault()}>
         {currentStep === 0 && <StepBuildingInfo form={form} gpsStatus={gpsStatus} onRetryGps={captureGps} pendingPhotos={pendingPhotos} setPendingPhotos={setPendingPhotos} />}
         {currentStep === 1 && <StepBuildingStatus form={form} />}
+        {currentStep === 2 && <StepIfteoLicense form={form} />}
       </form>
 
       {/* Navigation */}

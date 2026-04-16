@@ -52,6 +52,9 @@ export type Database = {
           latitude: number | null
           longitude: number | null
           photos: string[] | null
+          ifteo_license: boolean | null
+          ifteo_validity: string | null
+          which_trade: string | null
           created_at: string
           updated_at: string
         }
@@ -82,6 +85,9 @@ export type Database = {
           latitude?: number | null
           longitude?: number | null
           photos?: string[] | null
+          ifteo_license?: boolean | null
+          ifteo_validity?: string | null
+          which_trade?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -112,6 +118,9 @@ export type Database = {
           latitude?: number | null
           longitude?: number | null
           photos?: string[] | null
+          ifteo_license?: boolean | null
+          ifteo_validity?: string | null
+          which_trade?: string | null
           updated_at?: string
         }
         Relationships: [

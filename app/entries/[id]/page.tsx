@@ -336,6 +336,29 @@ export default function EntryDetailPage() {
         </div>
       )}
 
+      {/* IFTEOS License */}
+      {(building as any).ifteo_license !== null && (building as any).ifteo_license !== undefined && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">IFTEOS License</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-4">
+              <DetailRow
+                label="IFTEOS License"
+                value={(building as any).ifteo_license ? "Yes" : "No"}
+              />
+              {(building as any).ifteo_license && (
+                <>
+                  <DetailRow label="Validity" value={(building as any).ifteo_validity || ""} />
+                  <DetailRow label="Which Trade" value={(building as any).which_trade || ""} />
+                </>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Timestamps */}
       <div className="text-xs text-muted-foreground">
         <p>Created: {new Date(building.created_at).toLocaleString()}</p>

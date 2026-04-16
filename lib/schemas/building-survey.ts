@@ -95,6 +95,31 @@ export const shopDetailSchema = z
     }
   })
 
+export const step3Schema = z
+  .object({
+    ifteoLicense: z.boolean().optional(),
+    ifteoValidity: z.string().optional(),
+    whichTrade: z.string().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.ifteoLicense) {
+      if (!data.ifteoValidity || data.ifteoValidity.length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Validity is required",
+          path: ["ifteoValidity"],
+        })
+      }
+      if (!data.whichTrade || data.whichTrade.length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Trade type is required",
+          path: ["whichTrade"],
+        })
+      }
+    }
+  })
+
 export const buildingSurveySchema = z
   .object({
     // Step 1: Building Information
@@ -131,6 +156,11 @@ export const buildingSurveySchema = z
 
     // Shop Details (linked to rooms via roomNumber)
     shops: z.array(shopDetailSchema).optional(),
+
+    // Step 3: IFTEOS License
+    ifteoLicense: z.boolean().optional(),
+    ifteoValidity: z.string().optional(),
+    whichTrade: z.string().optional(),
   })
 
 // Per-step schemas for validation
@@ -170,3 +200,4 @@ export type RoomDetail = z.infer<typeof roomDetailSchema>
 export type WasteManagement = z.infer<typeof wasteManagementSchema>
 export type ShopDetail = z.infer<typeof shopDetailSchema>
 export type BuildingSurvey = z.infer<typeof buildingSurveySchema>
+export type Step3Data = z.infer<typeof step3Schema>
