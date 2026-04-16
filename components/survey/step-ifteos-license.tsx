@@ -53,7 +53,7 @@ export function StepIfteoLicense({ form }: StepIfteoLicenseProps) {
       {ifteoLicense === true && (
         <FieldGroup>
           <Field>
-            <FieldLabel required>Validity</FieldLabel>
+            <FieldLabel>Validity</FieldLabel>
             <FieldDescription>License validity period (e.g. 2024-2025)</FieldDescription>
             <Input
               {...register("ifteoValidity")}
@@ -65,7 +65,7 @@ export function StepIfteoLicense({ form }: StepIfteoLicenseProps) {
           </Field>
 
           <Field>
-            <FieldLabel required>Which Trade</FieldLabel>
+            <FieldLabel>Which Trade</FieldLabel>
             <FieldDescription>Type of trade covered by the license</FieldDescription>
             <Input
               {...register("whichTrade")}
