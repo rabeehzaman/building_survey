@@ -1,30 +1,39 @@
 "use client"
 
 import Image from "next/image"
+import Link from "next/link"
 import { MoonIcon, SunIcon } from "lucide-react"
 import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
 
 export function AppHeader() {
-  const { theme, setTheme } = useTheme()
+  const { resolvedTheme, setTheme } = useTheme()
 
   return (
-    <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-14 items-center justify-between px-4">
-        <div className="flex items-center gap-2.5">
+    <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur-lg supports-[backdrop-filter]:bg-background/70">
+      <div className="mx-auto flex h-14 max-w-lg items-center justify-between px-4">
+        <Link href="/" className="flex items-center gap-2.5 rounded-lg outline-none focus-visible:ring-3 focus-visible:ring-ring/50">
           <Image
             src="/logo.svg"
-            alt="Building Survey"
-            width={28}
-            height={28}
-            className="rounded-md"
+            alt=""
+            width={32}
+            height={32}
+            className="rounded-[9px] shadow-sm"
           />
-          <h1 className="text-lg font-semibold">Building Survey</h1>
-        </div>
+          <div className="flex flex-col leading-none">
+            <span className="text-[15px] font-semibold tracking-tight">
+              Building Survey
+            </span>
+            <span className="mt-1 text-[11px] font-medium text-muted-foreground">
+              Municipal field data
+            </span>
+          </div>
+        </Link>
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          className="rounded-full text-muted-foreground"
+          onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
         >
           <SunIcon className="scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
           <MoonIcon className="absolute scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />

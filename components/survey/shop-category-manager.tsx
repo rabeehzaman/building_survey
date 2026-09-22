@@ -92,6 +92,7 @@ export function ShopCategoryManager({
 
         <div className="flex gap-2">
           <Input
+            autoFocus
             placeholder="New category name"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
@@ -99,12 +100,13 @@ export function ShopCategoryManager({
               if (e.key === "Enter") handleAdd()
             }}
           />
-          <Button onClick={handleAdd} disabled={adding || !newName.trim()} size="sm">
-            {adding ? <Spinner /> : <PlusIcon />}
+          <Button onClick={handleAdd} disabled={adding || !newName.trim()} className="h-10">
+            {adding ? <Spinner data-icon="inline-start" /> : <PlusIcon data-icon="inline-start" />}
+            Add
           </Button>
         </div>
 
-        <div className="flex flex-col gap-1 max-h-60 overflow-y-auto">
+        <div className="flex max-h-64 flex-col gap-0.5 overflow-y-auto rounded-xl border p-1">
           {loading ? (
             <div className="flex justify-center py-4">
               <Spinner />
@@ -117,15 +119,17 @@ export function ShopCategoryManager({
             categories.map((cat) => (
               <div
                 key={cat.id}
-                className="flex items-center justify-between rounded-md px-2 py-1.5 hover:bg-muted"
+                className="flex items-center justify-between rounded-lg py-1 pr-1 pl-3 hover:bg-muted"
               >
                 <span className="text-sm">{cat.name}</span>
                 <Button
                   variant="ghost"
                   size="icon-sm"
+                  className="text-muted-foreground hover:text-destructive"
                   onClick={() => handleDelete(cat.id)}
                 >
-                  <TrashIcon className="size-3.5 text-destructive" />
+                  <TrashIcon className="size-3.5" />
+                  <span className="sr-only">Delete {cat.name}</span>
                 </Button>
               </div>
             ))

@@ -22,7 +22,7 @@ function ThemeProvider({
   )
 }
 
-const THEME_COLORS = { light: "#ffffff", dark: "#0a0a0a" } as const
+const THEME_COLORS = { light: "#f7f9fc", dark: "#0e1321" } as const
 
 function ThemeColorMeta() {
   const { resolvedTheme } = useTheme()

@@ -2,11 +2,22 @@
 
 import { useState, useEffect } from "react"
 import type { UseFormReturn } from "react-hook-form"
-import { ChevronDownIcon, ChevronUpIcon, PlusIcon, SettingsIcon } from "lucide-react"
+import {
+  ActivityIcon,
+  ChevronDownIcon,
+  DoorClosedIcon,
+  DoorOpenIcon,
+  PlusIcon,
+  RecycleIcon,
+  StoreIcon,
+  TagsIcon,
+  Trash2Icon,
+  CircleAlertIcon,
+  BadgeCheckIcon,
+} from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
 import { Button } from "@/components/ui/button"
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import {
   Select,
   SelectContent,
@@ -15,15 +26,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import {
-  Field,
-  FieldLabel,
-  FieldDescription,
-  FieldGroup,
-} from "@/components/ui/field"
+import { FieldGroup } from "@/components/ui/field"
 import { ShopCategoryManager } from "./shop-category-manager"
+import { FormSection, OptionalTag } from "./form-section"
+import { FormField } from "./form-field"
+import { ChoiceCards } from "./choice-cards"
+import { NumberStepper } from "./number-stepper"
+import { Segmented } from "./segmented"
 import { getShopCategories } from "@/lib/storage/survey-storage"
 import type { BuildingSurvey, RoomDetail, ShopDetail } from "@/lib/schemas/building-survey"
+import { cn } from "@/lib/utils"
+
+const MAX_ROOMS = 500
 
 interface StepBuildingStatusProps {
   form: UseFormReturn<BuildingSurvey, any, any>
@@ -52,6 +66,42 @@ const emptyShopDetail = (roomNumber: string): ShopDetail => ({
   harithaKarmaSena: false,
   harithaKarmaSenaNumber: "",
 })
+
+function SubHeading({ icon: Icon, children }: { icon?: React.ComponentType<{ className?: string }>; children: React.ReactNode }) {
+  return (
+    <div className="flex items-center gap-1.5 pt-1 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+      {Icon && <Icon className="size-3.5" />}
+      {children}
+    </div>
+  )
+}
+
+function SwitchRow({
+  id,
+  title,
+  description,
+  checked,
+  onCheckedChange,
+}: {
+  id: string
+  title: string
+  description?: string
+  checked: boolean
+  onCheckedChange: (checked: boolean) => void
+}) {
+  return (
+    <label
+      htmlFor={id}
+      className="flex cursor-pointer items-center justify-between gap-3 rounded-xl border bg-card px-3 py-2.5 transition-colors has-data-checked:border-primary/30 has-data-checked:bg-primary/5"
+    >
+      <span className="flex flex-col gap-0.5">
+        <span className="text-sm font-medium">{title}</span>
+        {description && <span className="text-xs text-muted-foreground">{description}</span>}
+      </span>
+      <Switch id={id} checked={checked} onCheckedChange={onCheckedChange} />
+    </label>
+  )
+}
 
 export function StepBuildingStatus({ form }: StepBuildingStatusProps) {
   const {
@@ -113,6 +163,7 @@ export function StepBuildingStatus({ form }: StepBuildingStatusProps) {
     const room = rooms[roomIndex]
     const filtered = shops.filter((s) => s.roomNumber !== room.roomNumber)
     setValue("shops", filtered)
+    form.clearErrors("shops")
     const next = new Set(expandedRooms)
     next.delete(roomIndex)
     setExpandedRooms(next)
@@ -176,67 +227,33 @@ export function StepBuildingStatus({ form }: StepBuildingStatusProps) {
 
     const shopErrors = errors.shops?.[shopIdx]
     const prefix = `shops.${shopIdx}` as const
-    const hasLicense = watch(`shops.${shopIdx}.hasLicense`)
+    const hasLicense = watch(`shops.${shopIdx}.hasLicense`) ?? false
+    const harithaKarmaSena = watch(`shops.${shopIdx}.harithaKarmaSena`) || false
 
     return (
-      <div className="mt-2 flex flex-col gap-3 rounded-lg border bg-muted/30 p-3">
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-medium">Room {room.roomNumber} Details</span>
-          <div className="flex gap-1">
-            {categories.length > 0 || (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowCategoryManager(true)}
-              >
-                <SettingsIcon className="size-3.5" />
-              </Button>
-            )}
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="text-destructive"
-              onClick={() => removeShopForRoom(roomIndex)}
-            >
-              Remove
-            </Button>
-          </div>
-        </div>
+      <div className="flex flex-col gap-4 border-t bg-muted/30 p-3">
+        <FieldGroup className="gap-4">
+          <SubHeading icon={StoreIcon}>Shop</SubHeading>
 
-        <FieldGroup>
-          {/* Shop Name */}
-          <Field data-invalid={shopErrors?.shopName ? true : undefined}>
-            <FieldLabel htmlFor={`${prefix}.shopName`}>Shop Name</FieldLabel>
+          <FormField id={`${prefix}.shopName`} label="Shop name" error={shopErrors?.shopName?.message}>
             <Input
               id={`${prefix}.shopName`}
-              placeholder="Enter shop name"
+              placeholder="e.g. Ashraf Stores"
               aria-invalid={!!shopErrors?.shopName}
               {...register(`shops.${shopIdx}.shopName`)}
             />
-            {shopErrors?.shopName && (
-              <FieldDescription>{shopErrors.shopName.message}</FieldDescription>
-            )}
-          </Field>
+          </FormField>
 
-          {/* Shop Category */}
-          {categories.length > 0 && (
-            <Field>
-              <FieldLabel htmlFor={`${prefix}.shopCategory`}>
-                Shop Category{" "}
-                <span className="text-muted-foreground font-normal">(Optional)</span>
-              </FieldLabel>
+          <FormField id={`${prefix}.shopCategory`} label="Category" optional>
+            {categories.length > 0 ? (
               <Select
                 value={watch(`shops.${shopIdx}.shopCategory`) || ""}
-                onValueChange={(val) =>
-                  setValue(`shops.${shopIdx}.shopCategory`, val)
-                }
+                onValueChange={(val) => setValue(`shops.${shopIdx}.shopCategory`, val)}
               >
-                <SelectTrigger id={`${prefix}.shopCategory`}>
+                <SelectTrigger id={`${prefix}.shopCategory`} className="w-full">
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent position="popper">
                   <SelectGroup>
                     {categories.map((cat) => (
                       <SelectItem key={cat.id} value={cat.name}>
@@ -246,384 +263,351 @@ export function StepBuildingStatus({ form }: StepBuildingStatusProps) {
                   </SelectGroup>
                 </SelectContent>
               </Select>
-            </Field>
-          )}
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowCategoryManager(true)}
+                className="flex h-10 items-center gap-2 rounded-lg border border-dashed px-3 text-sm text-muted-foreground transition-colors hover:border-primary/50 hover:text-primary"
+              >
+                <TagsIcon className="size-4" />
+                No categories yet — add some
+              </button>
+            )}
+          </FormField>
 
-          {/* License Toggle */}
-          <Field>
-            <div className="flex items-center justify-between">
-              <FieldLabel htmlFor={`${prefix}.hasLicense`}>Has License?</FieldLabel>
-              <Switch
-                id={`${prefix}.hasLicense`}
-                checked={hasLicense}
-                onCheckedChange={(checked) =>
-                  setValue(`shops.${shopIdx}.hasLicense`, checked)
-                }
-              />
-            </div>
-          </Field>
+          <SubHeading icon={BadgeCheckIcon}>License</SubHeading>
 
-          {/* License Fields */}
-          {hasLicense && (
+          <SwitchRow
+            id={`${prefix}.hasLicense`}
+            title="Has trade license?"
+            description={hasLicense ? "Enter licence details below" : "Enter the shop owner's details instead"}
+            checked={hasLicense}
+            onCheckedChange={(checked) => setValue(`shops.${shopIdx}.hasLicense`, checked)}
+          />
+
+          {hasLicense ? (
             <>
-              <Field data-invalid={shopErrors?.shopLicenceNo ? true : undefined}>
-                <FieldLabel htmlFor={`${prefix}.shopLicenceNo`}>Licence No</FieldLabel>
+              <FormField id={`${prefix}.shopLicenceNo`} label="Licence no" error={shopErrors?.shopLicenceNo?.message}>
                 <Input
                   id={`${prefix}.shopLicenceNo`}
                   placeholder="Licence number"
                   aria-invalid={!!shopErrors?.shopLicenceNo}
                   {...register(`shops.${shopIdx}.shopLicenceNo`)}
                 />
-                {shopErrors?.shopLicenceNo && (
-                  <FieldDescription>{shopErrors.shopLicenceNo.message}</FieldDescription>
-                )}
-              </Field>
-              <Field data-invalid={shopErrors?.shopLicenseeName ? true : undefined}>
-                <FieldLabel htmlFor={`${prefix}.shopLicenseeName`}>Licensee Name</FieldLabel>
-                <Input
-                  id={`${prefix}.shopLicenseeName`}
-                  placeholder="Licensee name"
-                  aria-invalid={!!shopErrors?.shopLicenseeName}
-                  {...register(`shops.${shopIdx}.shopLicenseeName`)}
-                />
-                {shopErrors?.shopLicenseeName && (
-                  <FieldDescription>{shopErrors.shopLicenseeName.message}</FieldDescription>
-                )}
-              </Field>
-              <Field data-invalid={shopErrors?.licenseeContactNo ? true : undefined}>
-                <FieldLabel htmlFor={`${prefix}.licenseeContactNo`}>Licensee Contact No</FieldLabel>
-                <Input
-                  id={`${prefix}.licenseeContactNo`}
-                  type="tel"
-                  inputMode="numeric"
-                  placeholder="10-digit number"
-                  aria-invalid={!!shopErrors?.licenseeContactNo}
-                  {...register(`shops.${shopIdx}.licenseeContactNo`)}
-                />
-                {shopErrors?.licenseeContactNo && (
-                  <FieldDescription>{shopErrors.licenseeContactNo.message}</FieldDescription>
-                )}
-              </Field>
+              </FormField>
+              <div className="grid grid-cols-2 gap-3">
+                <FormField id={`${prefix}.shopLicenseeName`} label="Licensee name" error={shopErrors?.shopLicenseeName?.message}>
+                  <Input
+                    id={`${prefix}.shopLicenseeName`}
+                    placeholder="Full name"
+                    aria-invalid={!!shopErrors?.shopLicenseeName}
+                    {...register(`shops.${shopIdx}.shopLicenseeName`)}
+                  />
+                </FormField>
+                <FormField id={`${prefix}.licenseeContactNo`} label="Contact" error={shopErrors?.licenseeContactNo?.message}>
+                  <Input
+                    id={`${prefix}.licenseeContactNo`}
+                    type="tel"
+                    inputMode="numeric"
+                    maxLength={10}
+                    placeholder="10 digits"
+                    aria-invalid={!!shopErrors?.licenseeContactNo}
+                    {...register(`shops.${shopIdx}.licenseeContactNo`)}
+                  />
+                </FormField>
+              </div>
             </>
-          )}
-
-          {/* Owner Fields */}
-          {!hasLicense && (
-            <>
-              <Field data-invalid={shopErrors?.ownerName ? true : undefined}>
-                <FieldLabel htmlFor={`${prefix}.ownerName`}>Owner Name</FieldLabel>
+          ) : (
+            <div className="grid grid-cols-2 gap-3">
+              <FormField id={`${prefix}.ownerName`} label="Owner name" error={shopErrors?.ownerName?.message}>
                 <Input
                   id={`${prefix}.ownerName`}
-                  placeholder="Owner name"
+                  placeholder="Full name"
                   aria-invalid={!!shopErrors?.ownerName}
                   {...register(`shops.${shopIdx}.ownerName`)}
                 />
-                {shopErrors?.ownerName && (
-                  <FieldDescription>{shopErrors.ownerName.message}</FieldDescription>
-                )}
-              </Field>
-              <Field data-invalid={shopErrors?.ownerContactNo ? true : undefined}>
-                <FieldLabel htmlFor={`${prefix}.ownerContactNo`}>Owner Contact No</FieldLabel>
+              </FormField>
+              <FormField id={`${prefix}.ownerContactNo`} label="Contact" error={shopErrors?.ownerContactNo?.message}>
                 <Input
                   id={`${prefix}.ownerContactNo`}
                   type="tel"
                   inputMode="numeric"
-                  placeholder="10-digit number"
+                  maxLength={10}
+                  placeholder="10 digits"
                   aria-invalid={!!shopErrors?.ownerContactNo}
                   {...register(`shops.${shopIdx}.ownerContactNo`)}
                 />
-                {shopErrors?.ownerContactNo && (
-                  <FieldDescription>{shopErrors.ownerContactNo.message}</FieldDescription>
-                )}
-              </Field>
-            </>
+              </FormField>
+            </div>
           )}
 
-          {/* Managing Person */}
-          <Field data-invalid={shopErrors?.shopManagingPerson ? true : undefined}>
-            <FieldLabel htmlFor={`${prefix}.shopManagingPerson`}>Managing Person</FieldLabel>
-            <Input
-              id={`${prefix}.shopManagingPerson`}
-              placeholder="Managing person name"
-              aria-invalid={!!shopErrors?.shopManagingPerson}
-              {...register(`shops.${shopIdx}.shopManagingPerson`)}
-            />
-            {shopErrors?.shopManagingPerson && (
-              <FieldDescription>{shopErrors.shopManagingPerson.message}</FieldDescription>
-            )}
-          </Field>
-          <Field data-invalid={shopErrors?.managingPersonContactNo ? true : undefined}>
-            <FieldLabel htmlFor={`${prefix}.managingPersonContactNo`}>Managing Person Contact</FieldLabel>
-            <Input
-              id={`${prefix}.managingPersonContactNo`}
-              type="tel"
-              inputMode="numeric"
-              placeholder="10-digit number"
-              aria-invalid={!!shopErrors?.managingPersonContactNo}
-              {...register(`shops.${shopIdx}.managingPersonContactNo`)}
-            />
-            {shopErrors?.managingPersonContactNo && (
-              <FieldDescription>{shopErrors.managingPersonContactNo.message}</FieldDescription>
-            )}
-          </Field>
-
-          {/* Connected Room */}
-          <Field>
-            <FieldLabel htmlFor={`${prefix}.connectedRoom`}>
-              Connected Room{" "}
-              <span className="text-muted-foreground font-normal">(Optional)</span>
-            </FieldLabel>
-            <Input
-              id={`${prefix}.connectedRoom`}
-              placeholder="Under that License No"
-              {...register(`shops.${shopIdx}.connectedRoom`)}
-            />
-          </Field>
-
-          {/* Waste Management */}
-          <div className="flex flex-col gap-3 rounded-lg border p-3">
-            <span className="text-sm font-medium">Waste Management</span>
-            <Field>
-              <FieldLabel htmlFor={`${prefix}.wm.water`}>Water</FieldLabel>
+          <div className="grid grid-cols-2 gap-3">
+            <FormField id={`${prefix}.shopManagingPerson`} label="Managing person" error={shopErrors?.shopManagingPerson?.message}>
               <Input
-                id={`${prefix}.wm.water`}
-                placeholder="How is water waste managed?"
-                {...register(`shops.${shopIdx}.wasteManagement.water`)}
+                id={`${prefix}.shopManagingPerson`}
+                placeholder="Full name"
+                aria-invalid={!!shopErrors?.shopManagingPerson}
+                {...register(`shops.${shopIdx}.shopManagingPerson`)}
               />
-            </Field>
-            <Field>
-              <FieldLabel htmlFor={`${prefix}.wm.foodWaste`}>Food Waste</FieldLabel>
+            </FormField>
+            <FormField id={`${prefix}.managingPersonContactNo`} label="Contact" error={shopErrors?.managingPersonContactNo?.message}>
               <Input
-                id={`${prefix}.wm.foodWaste`}
-                placeholder="How is food waste managed?"
-                {...register(`shops.${shopIdx}.wasteManagement.foodWaste`)}
+                id={`${prefix}.managingPersonContactNo`}
+                type="tel"
+                inputMode="numeric"
+                maxLength={10}
+                placeholder="10 digits"
+                aria-invalid={!!shopErrors?.managingPersonContactNo}
+                {...register(`shops.${shopIdx}.managingPersonContactNo`)}
               />
-            </Field>
-            <Field>
-              <FieldLabel htmlFor={`${prefix}.wm.paperWaste`}>Paper Waste</FieldLabel>
-              <Input
-                id={`${prefix}.wm.paperWaste`}
-                placeholder="How is paper waste managed?"
-                {...register(`shops.${shopIdx}.wasteManagement.paperWaste`)}
-              />
-            </Field>
-            <Field>
-              <FieldLabel htmlFor={`${prefix}.wm.plasticWaste`}>Plastic Waste</FieldLabel>
-              <Input
-                id={`${prefix}.wm.plasticWaste`}
-                placeholder="How is plastic waste managed?"
-                {...register(`shops.${shopIdx}.wasteManagement.plasticWaste`)}
-              />
-            </Field>
-            <Field>
-              <FieldLabel htmlFor={`${prefix}.wm.otherWaste`}>
-                Other Waste <span className="text-muted-foreground font-normal">(Optional)</span>
-              </FieldLabel>
-              <Input
-                id={`${prefix}.wm.otherWaste`}
-                placeholder="Any other waste management"
-                {...register(`shops.${shopIdx}.wasteManagement.otherWaste`)}
-              />
-            </Field>
+            </FormField>
           </div>
 
-          {/* Haritha Karma Sena */}
-          <Field>
-            <div className="flex items-center justify-between">
-              <FieldLabel htmlFor={`${prefix}.harithaKarmaSena`}>Haritha Karma Sena</FieldLabel>
-              <Switch
-                id={`${prefix}.harithaKarmaSena`}
-                checked={watch(`shops.${shopIdx}.harithaKarmaSena`) || false}
-                onCheckedChange={(checked) =>
-                  setValue(`shops.${shopIdx}.harithaKarmaSena`, checked)
-                }
-              />
-            </div>
-          </Field>
+          <FormField id={`${prefix}.connectedRoom`} label="Connected room" optional hint="Other rooms under the same licence">
+            <Input
+              id={`${prefix}.connectedRoom`}
+              placeholder="e.g. 3, 4"
+              {...register(`shops.${shopIdx}.connectedRoom`)}
+            />
+          </FormField>
 
-          {watch(`shops.${shopIdx}.harithaKarmaSena`) && (
-            <Field>
-              <FieldLabel htmlFor={`${prefix}.harithaKarmaSenaNumber`}>
-                Haritha Karma Sena Number
-              </FieldLabel>
+          <SubHeading icon={RecycleIcon}>Waste management</SubHeading>
+
+          <div className="grid grid-cols-2 gap-3">
+            <FormField id={`${prefix}.wm.water`} label="Water">
+              <Input
+                id={`${prefix}.wm.water`}
+                placeholder="How managed?"
+                {...register(`shops.${shopIdx}.wasteManagement.water`)}
+              />
+            </FormField>
+            <FormField id={`${prefix}.wm.foodWaste`} label="Food waste">
+              <Input
+                id={`${prefix}.wm.foodWaste`}
+                placeholder="How managed?"
+                {...register(`shops.${shopIdx}.wasteManagement.foodWaste`)}
+              />
+            </FormField>
+            <FormField id={`${prefix}.wm.paperWaste`} label="Paper waste">
+              <Input
+                id={`${prefix}.wm.paperWaste`}
+                placeholder="How managed?"
+                {...register(`shops.${shopIdx}.wasteManagement.paperWaste`)}
+              />
+            </FormField>
+            <FormField id={`${prefix}.wm.plasticWaste`} label="Plastic waste">
+              <Input
+                id={`${prefix}.wm.plasticWaste`}
+                placeholder="How managed?"
+                {...register(`shops.${shopIdx}.wasteManagement.plasticWaste`)}
+              />
+            </FormField>
+          </div>
+          <FormField id={`${prefix}.wm.otherWaste`} label="Other waste" optional>
+            <Input
+              id={`${prefix}.wm.otherWaste`}
+              placeholder="Any other waste management"
+              {...register(`shops.${shopIdx}.wasteManagement.otherWaste`)}
+            />
+          </FormField>
+
+          <SwitchRow
+            id={`${prefix}.harithaKarmaSena`}
+            title="Haritha Karma Sena"
+            description="Registered for waste collection"
+            checked={harithaKarmaSena}
+            onCheckedChange={(checked) => setValue(`shops.${shopIdx}.harithaKarmaSena`, checked)}
+          />
+
+          {harithaKarmaSena && (
+            <FormField id={`${prefix}.harithaKarmaSenaNumber`} label="Haritha Karma Sena number">
               <Input
                 id={`${prefix}.harithaKarmaSenaNumber`}
                 inputMode="numeric"
                 placeholder="Enter number"
                 {...register(`shops.${shopIdx}.harithaKarmaSenaNumber`)}
               />
-            </Field>
+            </FormField>
           )}
         </FieldGroup>
+
+        <Button
+          type="button"
+          variant="ghost"
+          className="self-start text-destructive hover:bg-destructive/10 hover:text-destructive"
+          onClick={() => removeShopForRoom(roomIndex)}
+        >
+          <Trash2Icon data-icon="inline-start" />
+          Remove shop details
+        </Button>
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-1">
-        <h2 className="text-xl font-semibold">Building Status</h2>
-        <p className="text-sm text-muted-foreground">
-          Current status of the building
-        </p>
-      </div>
-
-      <FieldGroup>
-        <Field data-invalid={errors.buildingStatus ? true : undefined}>
-          <FieldLabel>Building Status</FieldLabel>
-          <ToggleGroup
-            type="single"
-            value={buildingStatus}
-            onValueChange={(val) => {
-              if (val) setValue("buildingStatus", val as "working" | "vacant", { shouldValidate: true })
-            }}
-            className="justify-start"
-          >
-            <ToggleGroupItem value="working" className="flex-1" aria-invalid={!!errors.buildingStatus}>
-              Working
-            </ToggleGroupItem>
-            <ToggleGroupItem value="vacant" className="flex-1" aria-invalid={!!errors.buildingStatus}>
-              Vacant
-            </ToggleGroupItem>
-          </ToggleGroup>
-          {errors.buildingStatus && (
-            <FieldDescription>{errors.buildingStatus.message}</FieldDescription>
-          )}
-        </Field>
-
+    <div className="flex flex-col gap-4">
+      {/* Building status */}
+      <FormSection icon={ActivityIcon} title="Building status" description="Is the building currently in use?">
+        <ChoiceCards
+          aria-label="Building status"
+          value={buildingStatus}
+          invalid={!!errors.buildingStatus}
+          onChange={(val) => setValue("buildingStatus", val, { shouldValidate: true })}
+          options={[
+            { value: "working", label: "Working", description: "In use or operating", icon: DoorOpenIcon, tone: "success" },
+            { value: "vacant", label: "Vacant", description: "Not in use right now", icon: DoorClosedIcon, tone: "warning" },
+          ]}
+        />
         {buildingStatus === "vacant" && (
-          <Field data-invalid={errors.vacancyPeriod ? true : undefined}>
-            <FieldLabel htmlFor="vacancyPeriod">Vacancy Period</FieldLabel>
+          <FormField id="vacancyPeriod" label="Vacancy period" error={errors.vacancyPeriod?.message}>
             <Input
               id="vacancyPeriod"
-              placeholder="e.g., 6 months, 2 years"
+              placeholder="e.g. 6 months, 2 years"
               aria-invalid={!!errors.vacancyPeriod}
               {...register("vacancyPeriod")}
             />
-            {errors.vacancyPeriod && (
-              <FieldDescription>{errors.vacancyPeriod.message}</FieldDescription>
-            )}
-          </Field>
+          </FormField>
         )}
-      </FieldGroup>
+      </FormSection>
 
-      {/* Room Information */}
-      <div className="flex flex-col gap-4">
-        <div className="flex items-center justify-between">
-          <div className="flex flex-col gap-1">
-            <h3 className="text-lg font-semibold">Room Information</h3>
-            <p className="text-sm text-muted-foreground">
-              Enter room details and add shop info per room
-            </p>
-          </div>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => setShowCategoryManager(true)}
-          >
-            <SettingsIcon data-icon="inline-start" />
+      {/* Rooms */}
+      <FormSection
+        icon={DoorOpenIcon}
+        title="Rooms"
+        description="Set each room's status and add shop details"
+        action={
+          <Button type="button" variant="ghost" size="sm" onClick={() => setShowCategoryManager(true)} className="text-muted-foreground">
+            <TagsIcon data-icon="inline-start" />
             Categories
           </Button>
-        </div>
-
-        <FieldGroup>
-          <Field data-invalid={errors.totalRooms ? true : undefined}>
-            <FieldLabel htmlFor="totalRooms">Total Rooms</FieldLabel>
-            <Input
-              id="totalRooms"
-              type="number"
-              inputMode="numeric"
-              min={0}
-              placeholder="0"
-              value={totalRooms}
-              onChange={(e) => {
-                const val = parseInt(e.target.value) || 0
-                handleTotalRoomsChange(val)
-              }}
-            />
-            {errors.totalRooms && (
-              <FieldDescription>{errors.totalRooms.message}</FieldDescription>
-            )}
-          </Field>
-        </FieldGroup>
+        }
+      >
+        <FormField id="totalRooms" label="Total rooms" error={errors.totalRooms?.message}>
+          <NumberStepper
+            id="totalRooms"
+            label="total rooms"
+            value={totalRooms}
+            max={MAX_ROOMS}
+            invalid={!!errors.totalRooms}
+            onChange={handleTotalRoomsChange}
+          />
+        </FormField>
 
         {rooms.length > 0 && (
-          <div className="flex flex-col gap-3">
-            {/* Summary badges */}
-            <div className="flex gap-3">
-              <div className="flex-1 rounded-lg border bg-green-50 p-2 text-center dark:bg-green-950">
-                <span className="text-lg font-semibold text-green-700 dark:text-green-300">{occupiedCount}</span>
-                <p className="text-xs text-green-600 dark:text-green-400">Occupied</p>
+          <>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="flex items-center justify-between rounded-xl bg-success/10 px-3 py-2">
+                <span className="text-xs font-medium text-success">Occupied</span>
+                <span className="text-lg font-semibold text-success tabular-nums">{occupiedCount}</span>
               </div>
-              <div className="flex-1 rounded-lg border bg-orange-50 p-2 text-center dark:bg-orange-950">
-                <span className="text-lg font-semibold text-orange-700 dark:text-orange-300">{vacantCount}</span>
-                <p className="text-xs text-orange-600 dark:text-orange-400">Vacant</p>
+              <div className="flex items-center justify-between rounded-xl bg-warning/12 px-3 py-2">
+                <span className="text-xs font-medium text-warning">Vacant</span>
+                <span className="text-lg font-semibold text-warning tabular-nums">{vacantCount}</span>
               </div>
             </div>
 
-            {/* Room list */}
             <div className="flex flex-col gap-2">
               {rooms.map((room, index) => {
-                const isExpanded = expandedRooms.has(index)
-                const hasDetails = !!getShopForRoom(room.roomNumber)
+                const shopIdx = getShopIndex(room.roomNumber)
+                const shop = shopIdx >= 0 ? shops[shopIdx] : undefined
+                const shopHasError = shopIdx >= 0 && !!errors.shops?.[shopIdx]
+                const roomNumberError = errors.rooms?.[index]?.roomNumber
+                // Vacant rooms can't get new shop details, but keep any existing ones reachable
+                const canHaveShop = room.status === "occupied" || !!shop
+                const isExpanded = canHaveShop && (expandedRooms.has(index) || shopHasError)
 
                 return (
-                  <div key={index} className="rounded-lg border">
-                    <div className="flex flex-col gap-2 p-2">
-                      <div className="flex items-center gap-3">
-                        <div className="flex flex-col gap-1">
-                          <span className="text-xs font-medium text-muted-foreground">Room No.</span>
-                          <Input
-                            className="w-24 text-center"
+                  <div
+                    key={index}
+                    className={cn(
+                      "overflow-hidden rounded-xl border bg-card transition-shadow",
+                      isExpanded && "shadow-sm",
+                      shopHasError && "border-destructive/50"
+                    )}
+                  >
+                    <div className="flex flex-col gap-2.5 p-2.5">
+                      <div className="flex items-center gap-2.5">
+                        <div className="flex w-20 shrink-0 items-center rounded-lg border border-input bg-card pl-2.5 shadow-xs focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50 has-aria-invalid:border-destructive">
+                          <span className="text-xs font-medium text-muted-foreground">#</span>
+                          <input
+                            className="h-9 w-full min-w-0 bg-transparent px-1.5 text-base font-semibold outline-none"
                             value={room.roomNumber}
                             onChange={(e) => handleRoomNumberChange(index, e.target.value)}
-                            placeholder="Room No."
+                            placeholder="No."
+                            aria-label={`Room ${index + 1} number`}
+                            aria-invalid={!!roomNumberError || undefined}
                           />
                         </div>
-                        <div className="flex flex-1 flex-col gap-1">
-                          <span className="text-xs font-medium text-muted-foreground">Status</span>
-                          <ToggleGroup
-                            type="single"
-                            value={room.status}
-                            onValueChange={(val) => {
-                              if (val) handleRoomStatusChange(index, val as "vacant" | "occupied")
-                            }}
-                          >
-                            <ToggleGroupItem value="occupied" className="flex-1 text-xs">
-                              Occupied
-                            </ToggleGroupItem>
-                            <ToggleGroupItem value="vacant" className="flex-1 text-xs">
-                              Vacant
-                            </ToggleGroupItem>
-                          </ToggleGroup>
-                        </div>
+                        <Segmented
+                          aria-label={`Room ${room.roomNumber} status`}
+                          value={room.status}
+                          onChange={(val) => handleRoomStatusChange(index, val)}
+                          options={[
+                            {
+                              value: "occupied",
+                              label: "Occupied",
+                              activeClassName: "data-[state=on]:bg-success data-[state=on]:text-success-foreground",
+                            },
+                            {
+                              value: "vacant",
+                              label: "Vacant",
+                              activeClassName: "data-[state=on]:bg-warning data-[state=on]:text-warning-foreground",
+                            },
+                          ]}
+                        />
                       </div>
-                      {room.status === "occupied" && (
-                        <Button
+
+                      {roomNumberError && (
+                        <p className="text-xs text-destructive">{roomNumberError.message}</p>
+                      )}
+
+                      {canHaveShop && (
+                        <button
                           type="button"
-                          variant={hasDetails ? "secondary" : "outline"}
-                          size="sm"
                           onClick={() => toggleRoomExpand(index)}
-                          className="w-full text-xs"
-                        >
-                          {isExpanded ? (
-                            <ChevronUpIcon className="size-3.5" />
-                          ) : (
-                            <PlusIcon className="size-3.5" />
+                          aria-expanded={isExpanded}
+                          className={cn(
+                            "flex h-10 items-center gap-2 rounded-lg px-3 text-sm transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+                            shop
+                              ? "bg-muted/60 hover:bg-muted"
+                              : "border border-dashed text-muted-foreground hover:border-primary/50 hover:bg-primary/5 hover:text-primary"
                           )}
-                          {isExpanded ? "Hide" : hasDetails ? "Edit" : "Add Details"}
-                        </Button>
+                        >
+                          {shop ? (
+                            <>
+                              {shopHasError ? (
+                                <CircleAlertIcon className="size-4 shrink-0 text-destructive" />
+                              ) : (
+                                <StoreIcon className="size-4 shrink-0 text-primary" />
+                              )}
+                              <span className={cn("min-w-0 flex-1 truncate text-left font-medium", !shop.shopName && "text-muted-foreground")}>
+                                {shopHasError ? "Shop details need attention" : shop.shopName || "Shop details"}
+                              </span>
+                              {!shopHasError && shop.hasLicense && (
+                                <span className="rounded-full bg-success/12 px-2 py-0.5 text-[11px] font-medium text-success">
+                                  Licensed
+                                </span>
+                              )}
+                              <ChevronDownIcon className={cn("size-4 shrink-0 text-muted-foreground transition-transform", isExpanded && "rotate-180")} />
+                            </>
+                          ) : (
+                            <>
+                              <PlusIcon className="size-4" />
+                              <span className="font-medium">Add shop details</span>
+                              <OptionalTag />
+                            </>
+                          )}
+                        </button>
                       )}
                     </div>
-                    {isExpanded && room.status === "occupied" && renderShopFields(index)}
+                    {isExpanded && renderShopFields(index)}
                   </div>
                 )
               })}
             </div>
-          </div>
+          </>
         )}
-      </div>
+      </FormSection>
 
       <ShopCategoryManager
         open={showCategoryManager}

@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Municipal building survey data collection app",
     start_url: "/",
     display: "standalone",
-    background_color: "#0f172a",
-    theme_color: "#0a0a0a",
+    background_color: "#f7f9fc",
+    theme_color: "#f7f9fc",
     icons: [
       {
         src: "/icon",

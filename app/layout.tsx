@@ -29,8 +29,8 @@ export const viewport: Viewport = {
   userScalable: false,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
+    { media: "(prefers-color-scheme: light)", color: "#f7f9fc" },
+    { media: "(prefers-color-scheme: dark)", color: "#0e1321" },
   ],
 }
 
@@ -49,7 +49,7 @@ export default function RootLayout({
         <ThemeProvider>
           <div className="flex min-h-svh flex-col">
             <AppHeader />
-            <main className="mx-auto w-full max-w-lg flex-1 px-4 pb-20 pt-4">
+            <main className="mx-auto w-full max-w-lg flex-1 px-4 pt-5 pb-[calc(7rem+env(safe-area-inset-bottom))]">
               {children}
             </main>
             <BottomNav />
