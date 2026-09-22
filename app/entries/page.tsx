@@ -237,7 +237,7 @@ function EntriesContent() {
       )}
 
       {/* Search & filters */}
-      <div className="sticky top-14 z-30 -mx-4 flex flex-col gap-3 bg-background/90 px-4 pt-1 pb-3 backdrop-blur-lg">
+      <div className="sticky top-[calc(3.5rem+env(safe-area-inset-top))] z-30 -mx-4 flex flex-col gap-3 bg-background/90 px-4 pt-1 pb-3 backdrop-blur-lg">
         <InputGroup className="h-11 rounded-xl">
           <InputGroupAddon>
             <SearchIcon />

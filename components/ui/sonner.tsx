@@ -11,6 +11,9 @@ const Toaster = ({ ...props }: ToasterProps) => {
     <Sonner
       theme={resolvedTheme as ToasterProps["theme"]}
       position="top-center"
+      // Sit below the status bar and the sticky header
+      offset={{ top: "calc(env(safe-area-inset-top) + 4rem)" }}
+      mobileOffset={{ top: "calc(env(safe-area-inset-top) + 4rem)" }}
       className="toaster group"
       icons={{
         success: (

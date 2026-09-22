@@ -10,7 +10,9 @@ export function AppHeader() {
   const { resolvedTheme, setTheme } = useTheme()
 
   return (
-    <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur-lg supports-[backdrop-filter]:bg-background/70">
+    // The header owns the status-bar inset so its background stays behind the
+    // iOS status bar while sticky (the app runs with viewport-fit=cover).
+    <header className="sticky top-0 z-40 border-b bg-background/80 pt-[env(safe-area-inset-top)] backdrop-blur-lg supports-[backdrop-filter]:bg-background/70">
       <div className="mx-auto flex h-14 max-w-lg items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-2.5 rounded-lg outline-none focus-visible:ring-3 focus-visible:ring-ring/50">
           <Image
